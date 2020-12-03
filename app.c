@@ -26,7 +26,8 @@ void print_list(void);
 
 int main(void) {
 
-    /* Allokere plads til alle nodes i tom naboliste */
+    /* Laver graf                                    */
+    /* allokere plads til alle nodes i tom naboliste */
     for (int i = 0; i < MAX_NODE; i++) {
         adjlist[i] = (list *)malloc(sizeof(list));
         adjlist[i]->head = NULL;
