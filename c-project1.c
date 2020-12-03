@@ -15,9 +15,9 @@ struct Edge {
 };
 
 void Edge(int from, int to, long capacity) {
-    from = from;
-    to = to;
-    capacity = capacity;
+    this.from = from;
+    this.to = to;
+    this.capacity = capacity;
 }
 
 long remainingCapacity(long capacity, long flow) {
