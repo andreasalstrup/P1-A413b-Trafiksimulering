@@ -23,6 +23,7 @@ list *adjlist[MAX_NODE] = {0};
 
 void add_node(int s, int d, int c);
 void print_list(void);
+int edmonds_karp_algo(int s, int t);
 
 int main(void) {
 
@@ -46,8 +47,12 @@ int main(void) {
 
     add_node(3, 0, 50);
     add_node(3, 2, 500);
-    
+
     print_list();
+
+    /* Testing */
+    node *p = adjlist[0]->head;
+    printf("\n[%d,%dw]\n", p->next->vertexNum, p->next->capacity);
     return 0;
 }
 
@@ -87,4 +92,28 @@ void print_list(void) {
         }
     printf("\n");
     }
+}
+
+int edmonds_karp_algo(int s, int t) {
+    node *p = adjlist[t]->head;
+    int currentNode, prevNode;
+    int flowPassed[MAX_NODE][MAX_NODE];
+    int flow;
+    int maxFlow = 0;
+    
+    while (1) {
+        flow = bfs(s, t);
+        if (flow == 0) break;
+
+        maxFlow += flow;
+        currentNode = t;
+
+        while (currentNode != s) {
+            prevNode = p[currentNode - 1].vertexNum;
+            flowPassed[prevNode][currentNode] += flow;
+            flowPassed[currentNode][prevNode] -= flow;
+            currentNode = prevNode;
+        }
+    }
+    return maxFlow;
 }
