@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #define MAX_NODE 4
+#define CAPACITY 40                             //Placeholder value - Amount of nodes BFS has to run through
 
 /* Holder et hjørne */
 typedef struct node {
@@ -20,6 +21,28 @@ typedef struct list {
 /* Initialiseret til 0              */
 list *adjlist[MAX_NODE] = {0};
 
+/* Queue struct */
+struct queue {
+    int nodes[CAPACITY];
+    int front;
+    int rear;
+};
+
+/* Graph struct */
+struct graph {
+    int vertexNum;
+    struct node** adjlists; //Should maybe point to *adjlist. Subject to change
+    int* visited;
+};
+
+/* Queue prototypes */
+struct queue* createQueue();
+void enqueue(struct queue* q, int);
+int dequeue(struct queue* q);
+void display(struct queue* q);
+int isEmpty(struct queue* q);
+void printQueue(struct queue* q);
+/* End of queue prototypes */
 
 void add_node(int s, int d, int c);
 void print_list(void);
@@ -102,7 +125,7 @@ int edmonds_karp_algo(int s, int t) {
     int maxFlow = 0;
     
     while (1) {
-        flow = bfs(s, t);
+        flow = bfs(s, t); //To be researched
         if (flow == 0) break;
 
         maxFlow += flow;
@@ -116,4 +139,81 @@ int edmonds_karp_algo(int s, int t) {
         }
     }
     return maxFlow;
+}
+
+int bfs(struct graph* graph, int startVertex) {
+    struct queue* q = createQueue();
+
+    graph->visited[startVertex] = 1;
+    enqueue(q, startVertex);
+
+    while (!isEmpty(q)) {
+        //Printqueue
+        int currentVertex = dequeue(q);
+        //printf("Visited %d\n", currentVertex);
+
+        struct node* temp = graph->adjlists[currentVertex];
+
+        while (temp) {
+            int adjVertex = temp->vertexNum;
+
+            if (graph->visited[adjVertex] == 0) {
+                graph->visited[adjVertex] = 1;
+                enqueue(q, adjVertex);
+            }
+            temp = temp->next;
+        }
+    }
+}
+
+/*
+struct graph* createGraph(int vertices) {
+
+}
+*/
+
+struct queue* createQueue() {
+    struct queue* q = malloc(sizeof(struct queue));
+    q->front = -1;
+    q->rear = -1;
+    return q;
+}
+
+int isEmpty(struct queue* q) {
+    if (q->rear == -1) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+void enqueue(struct queue* q, int value) {
+    if (q->rear == CAPACITY - 1) {
+        printf("\nQueue is full");
+    }
+    else {
+        if (q->front == -1) {
+            q->front = 0;
+        }
+        q->rear++;
+        q->nodes[q->rear] = value;
+    }
+}
+
+int dequeue(struct queue* q) {
+    int node;
+    if (isEmpty(q)) {
+        printf("Queue is empty");
+        node = -1;
+    }
+    else {
+        node = q->nodes[q->front];
+        q->front++;
+        if (q->front > q->rear) {
+            printf("Resetting queue");
+            q->front = q->rear = -1;
+        }
+    }
+    return node;
 }
