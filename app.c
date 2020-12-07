@@ -125,7 +125,7 @@ int edmonds_karp_algo(int s, int t) {
     int maxFlow = 0;
     
     while (1) {
-        flow = bfs(s, t); //To be researched
+        //flow = bfs(s, t); //To be researched
         if (flow == 0) break;
 
         maxFlow += flow;
@@ -141,7 +141,7 @@ int edmonds_karp_algo(int s, int t) {
     return maxFlow;
 }
 
-int bfs(struct graph* graph, int startVertex) {
+int bfs(struct graph* graph, int startVertex, int t) {
     struct queue* q = createQueue();
 
     graph->visited[startVertex] = 1;
@@ -151,7 +151,6 @@ int bfs(struct graph* graph, int startVertex) {
         //Printqueue
         int currentVertex = dequeue(q);
         //printf("Visited %d\n", currentVertex);
-
         struct node* temp = graph->adjlists[currentVertex];
 
         while (temp) {
