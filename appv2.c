@@ -33,7 +33,7 @@ typedef struct queue {
 /* Graph struct */
 typedef struct graph {
     int vertexNum;
-    struct node** adjlists; //Should maybe point to *adjlist. Subject to change
+    struct node** adjlist; //Should maybe point to *adjlist. Subject to change
     int* visited;
 } graph;
 
@@ -132,7 +132,9 @@ int edmonds_karp_algo(struct graph *graph, int s, int t) {
     int maxFlow = 0;
     
     while (1) {
+        printf("Test1\n");
         flow = bfs2(graph, s, t); //To be researched
+        printf("Test2\n");
         if (flow == 0) break;
 
         maxFlow += flow;
@@ -158,7 +160,7 @@ void bfs(struct graph* graph, int startVertex, int t) {
         //Printqueue
         int currentVertex = dequeue(q);
         //printf("Visited %d\n", currentVertex);
-        struct node* temp = graph->adjlists[currentVertex];
+        struct node* temp = graph->adjlist[currentVertex];
 
         while (temp) {
             int adjVertex = temp->vertexNum;
@@ -181,15 +183,20 @@ int bfs2(struct graph *graph, int s, int t) {
     queue* q = createQueue();
     enqueue(q, s);
 
+    printf("BFS Test 1\n");
+
     int currentPathCapacity[MAX_NODE];
 
+    printf("BFS Test 2\n");
     memset(currentPathCapacity, 0, sizeof(currentPathCapacity));
     currentPathCapacity[s] = 999;
+
+    printf("BFS Test 3\n");
 
     for (int i = 0; i < MAX_NODE; i++) {
         graph[s].visited[i] = -1;
     }
-
+    printf("BFS Test 4\n");
     while(!isEmpty(q)){
 
         int currentNode = q->front;
@@ -197,7 +204,7 @@ int bfs2(struct graph *graph, int s, int t) {
 
         for(int i = 0; i < sizeof(graph[currentNode]); i++) {
 
-            int to_node = graph[currentNode].adjlists[i]->next->vertexNum;
+            int to_node = graph[currentNode].adjlist[i]->next->vertexNum;
 
             if(graph[s].visited[to_node] == -1) {
 
