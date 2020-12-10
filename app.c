@@ -31,7 +31,7 @@ struct queue {
 /* Graph struct */
 struct graph {
     int vertexNum;
-    struct node** adjlists; //Should maybe point to *adjlist. Subject to change
+    struct node** adjlist; //Should maybe point to *adjlist. Subject to change
     int* visited;
 };
 
@@ -151,7 +151,7 @@ int bfs(struct graph* graph, int startVertex, int t) {
         //Printqueue
         int currentVertex = dequeue(q);
         //printf("Visited %d\n", currentVertex);
-        struct node* temp = graph->adjlists[currentVertex];
+        struct node* temp = graph->adjlist[currentVertex];
 
         while (temp) {
             int adjVertex = temp->vertexNum;
