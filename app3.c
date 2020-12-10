@@ -5,21 +5,24 @@
 #define CAPACITY 40                             //Placeholder value - Amount of nodes BFS has to run through
 
 /* Holder et hjørne */
-typedef struct node {
+struct node {
     int vertexNum;                              // Knudepunkt nummer
     struct node *next;                          // Holder adressen til næste node (vertex)
     int capacity;                               // Kapaciteten fra knudepunktet
-} node;
+};
 
 /* Holder adressen til den første node i listen */
 /* headnode holder alle nabo nodes              */
+
+/*
 typedef struct list {
     node *head;
 } list;
+*/
 
 /* Liste med adressen til headnodes */
 /* Initialiseret til 0              */
-list *adjlist[MAX_NODE] = {0};
+//list *adjlist[MAX_NODE] = {0};
 
 /* Queue struct */
 struct queue {
@@ -37,86 +40,96 @@ struct graph {
 
 /* Queue prototypes */
 struct queue* createQueue();
-void enqueue(struct queue* q, int);
-int dequeue(struct queue* q);
-void display(struct queue* q);
-int isEmpty(struct queue* q);
-//void printQueue(struct queue* q);
+struct node* createNode();
+struct graph* createGraph();
+void enqueue();
+int dequeue();
+int isEmpty();
+int bfs();
 /* End of queue prototypes */
 
-void add_node(int s, int d, int c);
-void print_list(void);
-int edmonds_karp_algo(int s, int t);
+void add_node();
+void print_list();
+int edmonds_karp_algo();
 
 int main(void) {
 
     /* Laver graf                                    */
     /* allokere plads til alle nodes i tom naboliste */
+    /*
     for (int i = 0; i < MAX_NODE; i++) {
         adjlist[i] = (list *)malloc(sizeof(list));
         adjlist[i]->head = NULL;
     }
+    */
 
-    add_node(0, 1, 5);
-    add_node(0, 2, 10);
-    add_node(0, 3, 15);
+    struct graph* Graph = createGraph(MAX_NODE);
 
-    add_node(1, 0, 5);
-    add_node(1, 2, 15);
+    add_node(Graph, 0, 1, 5);
+    add_node(Graph, 0, 2, 10);
+    add_node(Graph, 0, 3, 15);
 
-    add_node(2, 0, 5);
-    add_node(2, 1, 10);
-    add_node(2, 3, 15);
+    add_node(Graph, 1, 0, 5);
+    add_node(Graph, 1, 2, 15);
 
-    add_node(3, 0, 50);
-    add_node(3, 2, 500);
+    add_node(Graph, 2, 0, 5);
+    add_node(Graph, 2, 1, 10);
+    add_node(Graph, 2, 3, 15);
 
-    print_list();
+    add_node(Graph, 3, 0, 10);
+    add_node(Graph, 3, 2, 10);
+
+    //print_list();
 
     /* Testing */
-    node *p = adjlist[0]->head;
-    printf("\n[%d,%dw]\n", p->next->vertexNum, p->next->capacity);
+    //node *p = adjlist[0]->head;
+    //printf("\n[%d,%dw]\n", p->next->vertexNum, p->next->capacity);
+
+    int bfsRes = bfs(Graph, 0);
+
+    printf("%d\n", bfsRes);
     return 0;
 }
 
 /* Tilføj node til graf, via naboliste */
-void add_node(int s, int d, int c) {
-    node *dest, *tmp, *src;
+void add_node(struct graph* Graph, int src, int dest, int c) {
 
-    if (adjlist[s]->head == NULL) {         
-        src = (node *)malloc(sizeof(node));     // laver node, source variabel opbevare adressen 
-        src->vertexNum = s;                     // gir vertexNum værdien s i source node
-        src->next = NULL;                       // gir next værdien NULL i source node
-        src->capacity = 0;                      // Sætter src node til 0 (skal måske havde en maksværdi)
-        adjlist[s]->head = src;                 // gemmer indholdet i source, i adjlist index s 
-    }
+    //Adds edge from src to dest
+    struct node* newNode = createNode(dest, c); //makes the dest node
+    newNode->next = Graph->adjlists[src];
+    Graph->adjlists[src] = newNode;
 
-    dest = (node *)malloc(sizeof(node));        // laver ny node, destinations variabel opbebare adressen
-    dest->vertexNum = d;                        // gir vertexNum værdien d i dest node
-    dest->next = NULL;                          // gir next værdien NULL i dest node
-    dest->capacity = c;                         // Sætter kapaciteten mellem src og dest node
-    tmp = adjlist[s]->head;                     // tmp variabel assignes værdien i head i adjlist[s]
-    
-    while (tmp->next != NULL) {
-        tmp = tmp->next;                        // hvis næste node ikke er NULL assignes tmp værdien til næste nodes værdi
-    }
-    tmp->next = dest;                           // gemmer indholdet i destinations variablen, i næste node
+    //Adds edge from dest to src
+    newNode = createNode(src, 0); //makes the src node
+    newNode->next = Graph->adjlists[dest];
+    Graph->adjlists[dest] = newNode;
 }
 
-/* Print visuel repræsentation af hvordan nodes er forbundet i nabolisten */
+struct node* createNode(int v, int c) {
+    struct node* newNode = malloc(sizeof(struct node));
+    newNode->vertexNum = v;
+    newNode->next = NULL;
+    newNode->capacity = c;
+    return newNode;
+}
+
+/*
+//Print visuel repræsentation af hvordan nodes er forbundet i nabolisten 
 void print_list(void) {
     for (int i = 0; i < MAX_NODE; i++) {
         node *p = adjlist[i]->head;
         printf("\n Vetex %d\n: ", i);
 
         while (p) {
-            printf("[%d, w: %d] -> ", p->vertexNum, p->capacity);
+            printf("[%d,%dw] -> ", p->vertexNum, p->capacity);
             p = p->next;
         }
     printf("\n");
     }
 }
+*/
 
+/*
 int edmonds_karp_algo(int s, int t) {
     node *p = adjlist[t]->head;
     int currentNode, prevNode;
@@ -140,36 +153,51 @@ int edmonds_karp_algo(int s, int t) {
     }
     return maxFlow;
 }
+*/
 
-int bfs(struct graph* graph, int startVertex, int t) {
+int bfs(struct graph* Graph, int startVertex) {
+    
+    int flowCapacity = 0;
     struct queue* q = createQueue();
 
-    graph->visited[startVertex] = 1;
+    Graph->visited[startVertex] = 1;
     enqueue(q, startVertex);
 
     while (!isEmpty(q)) {
-        //Printqueue
         int currentVertex = dequeue(q);
-        //printf("Visited %d\n", currentVertex);
-        struct node* temp = graph->adjlists[currentVertex];
+        struct node* temp = Graph->adjlists[currentVertex];
 
         while (temp) {
             int adjVertex = temp->vertexNum;
 
-            if (graph->visited[adjVertex] == 0) {
-                graph->visited[adjVertex] = 1;
+            if (Graph->visited[adjVertex] == 0) {
+                Graph->visited[adjVertex] = 1;
                 enqueue(q, adjVertex);
             }
+            flowCapacity += temp->capacity;
             temp = temp->next;
         }
     }
+    return flowCapacity;
 }
 
-/*
+
 struct graph* createGraph(int vertices) {
+    struct graph* graph = malloc(sizeof(struct graph));
+    graph->vertexNum = vertices;
 
+    graph->adjlists = malloc(vertices * sizeof(struct node*));
+    graph->visited = malloc(vertices * sizeof(int));
+
+    int i;
+    for (i = 0; i < vertices; i++) {
+        graph->adjlists[i] = NULL;
+        graph->visited[i] = 0;
+    }
+
+    return graph;
 }
-*/
+
 
 struct queue* createQueue() {
     struct queue* q = malloc(sizeof(struct queue));
@@ -210,7 +238,7 @@ int dequeue(struct queue* q) {
         node = q->nodes[q->front];
         q->front++;
         if (q->front > q->rear) {
-            printf("Resetting queue");
+            //printf("Resetting queue\n");
             q->front = q->rear = -1;
         }
     }
