@@ -34,7 +34,7 @@ typedef struct queue {
 typedef struct graph {
     int vertexNum;
     struct node** adjlist; //Should maybe point to *adjlist. Subject to change
-    int* visited;
+    int visited[MAX_NODE];
 } graph;
 
 /* Queue prototypes */
@@ -150,32 +150,6 @@ int edmonds_karp_algo(struct graph *graph, int s, int t) {
     return maxFlow;
 }
 
-void bfs(struct graph* graph, int startVertex, int t) {
-    struct queue* q = createQueue();
-
-    graph->visited[startVertex] = 1;
-    enqueue(q, startVertex);
-
-    while (!isEmpty(q)) {
-        //Printqueue
-        int currentVertex = dequeue(q);
-        //printf("Visited %d\n", currentVertex);
-        struct node* temp = graph->adjlist[currentVertex];
-
-        while (temp) {
-            int adjVertex = temp->vertexNum;
-
-            if (graph->visited[adjVertex] == 0) {
-                graph->visited[adjVertex] = 1;
-                enqueue(q, adjVertex);
-            }
-            temp = temp->next;
-        }
-    }
-}
-
-
-
 int bfs2(struct graph *graph, int s, int t) {
     int capacities[MAX_NODE][MAX_NODE];
     int flowPassed[MAX_NODE][MAX_NODE];
@@ -202,17 +176,18 @@ int bfs2(struct graph *graph, int s, int t) {
         int currentNode = q->front;
         dequeue(q);
 
-        for(int i = 0; i < sizeof(graph[currentNode]); i++) {
+        printf("BFS Test 5\n");
+        for(int i = 0; i < graph[currentNode].vertexNum; i++) {
 
             int to_node = graph[currentNode].adjlist[i]->next->vertexNum;
-
+            printf("BFS Test 5\n");
             if(graph[s].visited[to_node] == -1) {
-
+                printf("BFS Test 6\n");
                 if(capacities[currentNode][to_node] - flowPassed[currentNode][to_node] > 0) {
 
                     graph[s].visited[to_node] = currentNode;
                     currentPathCapacity[to_node] = min(currentPathCapacity[currentNode], capacities[currentNode][to_node] - flowPassed[currentNode][to_node]);
-
+                    printf("BFS Test 7\n");
                     if(to_node == t) {
 
                         return currentPathCapacity[t];
@@ -271,7 +246,7 @@ int dequeue(struct queue* q) {
         node = q->nodes[q->front];
         q->front++;
         if (q->front > q->rear) {
-            printf("Resetting queue");
+            printf("Resetting queue\n");
             q->front = q->rear = -1;
         }
     }
