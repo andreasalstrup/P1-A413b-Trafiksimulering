@@ -132,14 +132,14 @@ int edmonds_karp_algo(struct graph *graph, int s, int t) {
     int maxFlow = 0;
     
     while (1) {
-        printf("Test1\n");
+        printf("EK Test1\n");
         flow = bfs2(graph, s, t); //To be researched
-        printf("Test2: %d\n", flow);
+        printf("EK Test2 FLow: %d\n", flow);
         if (flow == 0) break;
 
         maxFlow += flow;
         currentNode = t;
-        printf("Test3\n");
+        printf("EK Test3\n");
         while (currentNode != s) {
             prevNode = p[currentNode - 1].vertexNum;
             flowPassed[prevNode][currentNode] += flow;
