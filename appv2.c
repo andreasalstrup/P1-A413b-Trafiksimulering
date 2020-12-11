@@ -181,14 +181,14 @@ int bfs2(struct graph *graph, int s, int t) {
         for(int i = 0; i < graph[currentNode].vertexNum; i++) {
 
             int to_node = graph[currentNode].adjlist[i]->next->vertexNum;
-            printf("BFS Test 5\n");
+            printf("BFS Test 6\n");
             if(graph[s].visited[to_node] == -1) {
-                printf("BFS Test 6\n");
+                printf("BFS Test 7\n");
                 if(capacities[currentNode][to_node] - flowPassed[currentNode][to_node] > 0) {
 
                     graph[s].visited[to_node] = currentNode;
                     currentPathCapacity[to_node] = min(currentPathCapacity[currentNode], capacities[currentNode][to_node] - flowPassed[currentNode][to_node]);
-                    printf("BFS Test 7\n");
+                    printf("BFS Test 8\n");
                     if(to_node == t) {
 
                         return currentPathCapacity[t];
