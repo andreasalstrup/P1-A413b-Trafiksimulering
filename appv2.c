@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_NODE 4
+#define MAX_NODE 5
 #define CAPACITY 40                             //Placeholder value - Amount of nodes BFS has to run through
 
 /* Holder et hjørne */
@@ -53,7 +53,7 @@ int bfs2(struct graph *graph, int s, int t);
 int min(int num1, int num2);
 
 int main(void) {
-    graph *graph;
+    graph *graph = malloc(sizeof(struct graph));
 
     /* Laver graf                                    */
     /* allokere plads til alle nodes i tom naboliste */
@@ -62,23 +62,23 @@ int main(void) {
         adjlist[i]->head = NULL;
     }
 
-    add_node(0, 1, 5);
-    add_node(0, 2, 10);
-    add_node(0, 3, 15);
+    add_node(0, 1, 16);
+    add_node(0, 2, 13);
+    add_node(1, 2, 10);
+    add_node(2, 1, 6);
+    add_node(1, 3, 14);
+    add_node(3, 2, 7);
+    add_node(2, 4, 13);
+    add_node(4, 3, 8);
+    add_node(4, 5, 6);
+    add_node(3, 5, 18); // max flow skal være 24
+    
 
-    add_node(1, 0, 5);
-    add_node(1, 2, 15);
-
-    add_node(2, 0, 5);
-    add_node(2, 1, 10);
-    add_node(2, 3, 15);
-
-    add_node(3, 0, 50);
-    add_node(3, 2, 500);
+    
 
     print_list();
 
-    edmonds_karp_algo(graph, 0, 3);
+    printf("%d",edmonds_karp_algo(graph, 0, 3));
 
     /* Testing */
     node *p = adjlist[0]->head;
@@ -114,7 +114,7 @@ void add_node(int s, int d, int c) {
 void print_list(void) {
     for (int i = 0; i < MAX_NODE; i++) {
         node *p = adjlist[i]->head;
-        printf("\n Vetex %d\n: ", i);
+        printf("\n Vertex %d: ", i);
 
         while (p) {
             printf("[%d,%dw] -> ", p->vertexNum, p->capacity);
@@ -134,18 +134,19 @@ int edmonds_karp_algo(struct graph *graph, int s, int t) {
     while (1) {
         printf("Test1\n");
         flow = bfs2(graph, s, t); //To be researched
-        printf("Test2\n");
+        printf("Test2: %d\n", flow);
         if (flow == 0) break;
 
         maxFlow += flow;
         currentNode = t;
-
+        printf("Test3\n");
         while (currentNode != s) {
             prevNode = p[currentNode - 1].vertexNum;
             flowPassed[prevNode][currentNode] += flow;
             flowPassed[currentNode][prevNode] -= flow;
             currentNode = prevNode;
         }
+        
     }
     return maxFlow;
 }
