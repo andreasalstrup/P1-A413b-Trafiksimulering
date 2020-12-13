@@ -6,5 +6,5 @@ https://sahebg.github.io/computersceince/maximum-flow-edmond-karp-algorithm-c-pr
 Breadth first search - programiz.com:
 https://www.programiz.com/dsa/graph-bfs
 
-C++ Program to Implement The Edmonds-Karp Algorithm
+C++ Program to Implement The Edmonds-Karp Algorithm:
 https://www.tutorialspoint.com/cplusplus-program-to-implement-the-edmonds-karp-algorithm
