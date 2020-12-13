@@ -173,7 +173,7 @@ int main() {
     addEdge(graph, 1, 2);
     addEdge(graph, 2, 4);
     */
-    Graph* graph = createGraph(5);
+    Graph* graph = createGraph(6);
     addEdge(graph, 0, 1);
     addEdge(graph, 0, 2);
     addEdge(graph, 1, 2);

@@ -215,7 +215,7 @@ int main() {
     addEdge(graph, 1, 2, 1);
     addEdge(graph, 2, 4, 1);
     */
-    Graph* graph = createGraph(5);
+    Graph* graph = createGraph(6);
     addEdge(graph, 0, 1, 16);
     addEdge(graph, 0, 2, 13);
     addEdge(graph, 1, 2, 10);
