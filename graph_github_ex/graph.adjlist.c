@@ -163,7 +163,7 @@ int BFS(Graph* graph, int startVertex, int endNode) {
                 return currentPathCapacity;
             }
 
-            enqueue(q, graph->adjList[currentVertex]->data);
+            //enqueue(q, graph->adjList[currentVertex]->data);
         }
     }
     return 0;
@@ -184,28 +184,33 @@ void cleanVisitedArray(Graph* graph) {
 int edmonds_karp_algo(Graph* graph, int s, int t) {
     int flow;
     int maxFlow = 0;
+    int i = 0;
+    //int currentNode = t;
+    int currentNode = t;
+    int prevNode = currentNode - 1;
     
     while (1) {
-        flow = BFS(graph, s, t); //To be researched
+        flow = BFS(graph, s, t);
         printf("\n\nBFS Result: %d\n", flow);
         if (flow == 0) {
             break;
         }
 
         maxFlow += flow;
-        int currentNode = t;
         while (currentNode != s) {
             //int prevNode = graph->adjList[currentNode--]->data;     /* FIX = LØSNING? */
-            int prevNode = graph->numVertices;
 
-            printf("currentNode: %d\n", currentNode);
-            printf("prevNode: %d\n", prevNode);
-
-            flow += graph->adjList[prevNode]->weight;
-            flow -= graph->adjList[currentNode]->weight;
+            printf("[%d]currentNode: %d\n", i++, currentNode);
+            //printf("prevNode: %d\n", prevNode);
+            flow += graph->adjList[currentNode]->weight;
+            //flow -= graph->adjList[prevNode]->weight;
+            printf("Flow: %d\n", flow);
+            printf("V: %d\n", graph->visited[currentNode]);
             
-            currentNode = prevNode;
+            currentNode = prevNode--;
+            break;
         }
+        printf("Outflow: %d\n", flow);
         
     }
     return maxFlow;
@@ -221,6 +226,7 @@ int main() {
     addEdge(graph, 1, 2, 1);
     addEdge(graph, 2, 4, 1);
     */
+    /*
     Graph* graph = createGraph(6);
     addEdge(graph, 0, 1, 16);
     addEdge(graph, 0, 2, 13);
@@ -231,14 +237,23 @@ int main() {
     addEdge(graph, 2, 4, 13);
     addEdge(graph, 4, 3, 8);
     addEdge(graph, 4, 5, 6);
-    addEdge(graph, 3, 5, 18); // max flow skal være 24
-
-
+    addEdge(graph, 3, 5, 18); // max flow skal være 24 // source: 0 sink: 5
+    */
+    // /*
+    Graph* graph = createGraph(6);
+    addEdge(graph, 0, 1, 14);
+    addEdge(graph, 2, 4, 10);
+    addEdge(graph, 6, 7, 9);
+    addEdge(graph, 5, 2, 10);
+    addEdge(graph, 1, 4, 12);
+    addEdge(graph, 2, 0, 15);
+    addEdge(graph, 5, 3, 15); // max flow skal være 12 // source: 0 sink: 4
+    // */
     printGraph(graph);
     
-    printf("\nDFS: ");
-    DFS(graph, 0);
-    printf("\n");
+    //printf("\nDFS: ");
+    //DFS(graph, 0);
+    //printf("\n");
 
     cleanVisitedArray(graph);
     printf("BFS: ");
