@@ -1,29 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_NODE 4
+#define MAX_NODE 9
 #define CAPACITY 40                             //Placeholder value - Amount of nodes BFS has to run through
 #define MAX_PATH 20
 
 /* Holder et hjørne */
-struct node {
+typedef struct node {
     int vertexNum;                              // Knudepunkt nummer
     struct node *next;                          // Holder adressen til næste node (vertex)
     int capacity;                               // Kapaciteten fra knudepunktet
-};
-
-/* Holder adressen til den første node i listen */
-/* headnode holder alle nabo nodes              */
-
-/*
-typedef struct list {
-    node *head;
-} list;
-*/
-
-/* Liste med adressen til headnodes */
-/* Initialiseret til 0              */
-//list *adjlist[MAX_NODE] = {0};
+} node;
 
 /* Queue struct */
 struct queue {
@@ -37,10 +24,6 @@ struct graph {
     int vertexAmount;
     struct node** adjlists; 
     int* visited;
-};
-
-struct path {
-    struct node vertex;
 };
 
 /* Queue prototypes */
@@ -60,38 +43,33 @@ int edmonds_karp_algo();
 
 int main(void) {
 
-    /* Laver graf                                    */
-    /* allokere plads til alle nodes i tom naboliste */
-    /*
-    for (int i = 0; i < MAX_NODE; i++) {
-        adjlist[i] = (list *)malloc(sizeof(list));
-        adjlist[i]->head = NULL;
-    }
-    */
-
     struct graph* Graph = createGraph(MAX_NODE);
 
-    add_node(Graph, 0, 1, 5);
-    add_node(Graph, 0, 2, 10);
-    add_node(Graph, 0, 3, 15);
+/*
+    add_node(Graph, 0, 1, 14);
+    add_node(Graph, 2, 4, 10);
+    add_node(Graph, 6, 7, 9);
+    add_node(Graph, 5, 2, 10);
+    add_node(Graph, 1, 4, 12);
+    add_node(Graph, 2, 0, 15);
+    add_node(Graph, 5, 3, 15);
+*/
 
-    add_node(Graph, 1, 0, 5);
-    add_node(Graph, 1, 2, 15);
+    add_node(Graph, 0, 1, 5);   //3rd
+    add_node(Graph, 0, 2, 10);  //2nd
+    add_node(Graph, 0, 3, 15);  //1st //Source
+    add_node(Graph, 1, 4, 10);  //6th
+    add_node(Graph, 1, 5, 5);   
+    add_node(Graph, 2, 5, 10);  //5th
+    add_node(Graph, 3, 6, 5);   //4th //Mid
+    add_node(Graph, 4, 7, 5);
+    add_node(Graph, 5, 7, 15);
+    add_node(Graph, 6, 7, 10);  //7th //Sink
 
-    add_node(Graph, 2, 0, 5);
-    add_node(Graph, 2, 1, 10);
-    add_node(Graph, 2, 3, 15);
 
-    add_node(Graph, 3, 0, 10);
-    add_node(Graph, 3, 2, 10);
+    printf("BFS begins\n");
 
-    //print_list();
-
-    /* Testing */
-    //node *p = adjlist[0]->head;
-    //printf("\n[%d,%dw]\n", p->next->vertexNum, p->next->capacity);
-
-    int bfsRes = bfs(Graph, 0, 0, 3);
+    int bfsRes = bfs(Graph, 0, 7);
 
     printf("%d\n", bfsRes);
     return 0;
@@ -119,49 +97,7 @@ struct node* createNode(int v, int c) {
     return newNode;
 }
 
-/*
-//Print visuel repræsentation af hvordan nodes er forbundet i nabolisten 
-void print_list(void) {
-    for (int i = 0; i < MAX_NODE; i++) {
-        node *p = adjlist[i]->head;
-        printf("\n Vetex %d\n: ", i);
-
-        while (p) {
-            printf("[%d,%dw] -> ", p->vertexNum, p->capacity);
-            p = p->next;
-        }
-    printf("\n");
-    }
-}
-*/
-
-/*
-int edmonds_karp_algo(int s, int t) {
-    node *p = adjlist[t]->head;
-    int currentNode, prevNode;
-    int flowPassed[MAX_NODE][MAX_NODE];
-    int flow;
-    int maxFlow = 0;
-    
-    while (1) {
-        //flow = bfs(s, t); //To be researched
-        if (flow == 0) break;
-
-        maxFlow += flow;
-        currentNode = t;
-
-        while (currentNode != s) {
-            prevNode = p[currentNode - 1].vertexNum;
-            flowPassed[prevNode][currentNode] += flow;
-            flowPassed[currentNode][prevNode] -= flow;
-            currentNode = prevNode;
-        }
-    }
-    return maxFlow;
-}
-*/
-
-int bfs(struct graph* Graph, int startVertex, int s, int t) {
+int bfs(struct graph* Graph, int startVertex, int t) {
     
     int flowCapacity = 0;
     struct queue* q = createQueue();
@@ -169,13 +105,15 @@ int bfs(struct graph* Graph, int startVertex, int s, int t) {
     Graph->visited[startVertex] = 1;
     enqueue(q, startVertex);
 
-    int BFS_path[MAX_PATH];
+    int BFS_path[MAX_NODE];
     int count = 0;
     BFS_path[count] = 0;
 
+    printf("Count : %d  Vertex: %d  Capacity: %d\n", count, BFS_path[0], 0);
+
     while (!isEmpty(q)) {
         int currentVertex = dequeue(q);
-        struct node* temp = Graph->adjlists[currentVertex];
+        struct node* temp = temp = Graph->adjlists[currentVertex];
 
         while (temp) {
             int adjVertex = temp->vertexNum;
@@ -185,31 +123,45 @@ int bfs(struct graph* Graph, int startVertex, int s, int t) {
                 enqueue(q, adjVertex);
                 count++;
                 BFS_path[count] = adjVertex;
-                flowCapacity += temp->capacity;
+                
+                printf("Count : %d  Curr_Vertex: %d  Capacity: %d\n", count, adjVertex, temp->capacity);
             }
-            
+            //flowCapacity += temp->capacity;
             temp = temp->next;
         }
     }
 
-    
+    printf("BFS Complete\n");
+/*
     //Recontructing the path in reverse
     count = 0;
-    int* path[] = { NULL };
+    int path[MAX_NODE];
+
+    for(int i = 0; i < MAX_NODE; i++) {
+        path[i] = 0;
+    }
+
     for(int at = t; at != 0; at = BFS_path[at]) {
+        printf("%d\n", at);
         path[count];
         count++;
     }
+
+    printf("Path Constructed\n");
 
     //Reversing the path
     int n = sizeof(path)/sizeof(path[0]);
     reverse(path, n);
 
+    printf("Path Reversed\n");
+
     for (int i = 0; i < sizeof(path); i++) {
-        //int temp = path[i];
-        
+        int temp = path[i];
+        flowCapacity = Graph->adjlists[i]->capacity;
     }
 
+    printf("Flow calculated. Returning..\n");
+*/
     return flowCapacity;
 }
 
@@ -287,3 +239,29 @@ int dequeue(struct queue* q) {
     }
     return node;
 }
+
+/*
+int edmonds_karp_algo(int s, int t) {
+    node *p = adjlist[t]->head;
+    int currentNode, prevNode;
+    int flowPassed[MAX_NODE][MAX_NODE];
+    int flow;
+    int maxFlow = 0;
+    
+    while (1) {
+        //flow = bfs(s, t); //To be researched
+        if (flow == 0) break;
+
+        maxFlow += flow;
+        currentNode = t;
+
+        while (currentNode != s) {
+            prevNode = p[currentNode - 1].vertexNum;
+            flowPassed[prevNode][currentNode] += flow;
+            flowPassed[currentNode][prevNode] -= flow;
+            currentNode = prevNode;
+        }
+    }
+    return maxFlow;
+}
+*/
