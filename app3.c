@@ -3,6 +3,7 @@
 
 #define MAX_NODE 4
 #define CAPACITY 40                             //Placeholder value - Amount of nodes BFS has to run through
+#define MAX_PATH 20
 
 /* Holder et hjørne */
 struct node {
@@ -33,9 +34,13 @@ struct queue {
 
 /* Graph struct */
 struct graph {
-    int vertexNum;
-    struct node** adjlists; //Should maybe point to *adjlist. Subject to change
+    int vertexAmount;
+    struct node** adjlists; 
     int* visited;
+};
+
+struct path {
+    struct node vertex;
 };
 
 /* Queue prototypes */
@@ -46,6 +51,7 @@ void enqueue();
 int dequeue();
 int isEmpty();
 int bfs();
+void reverse();
 /* End of queue prototypes */
 
 void add_node();
@@ -85,7 +91,7 @@ int main(void) {
     //node *p = adjlist[0]->head;
     //printf("\n[%d,%dw]\n", p->next->vertexNum, p->next->capacity);
 
-    int bfsRes = bfs(Graph, 0);
+    int bfsRes = bfs(Graph, 0, 0, 3);
 
     printf("%d\n", bfsRes);
     return 0;
@@ -155,13 +161,17 @@ int edmonds_karp_algo(int s, int t) {
 }
 */
 
-int bfs(struct graph* Graph, int startVertex) {
+int bfs(struct graph* Graph, int startVertex, int s, int t) {
     
     int flowCapacity = 0;
     struct queue* q = createQueue();
 
     Graph->visited[startVertex] = 1;
     enqueue(q, startVertex);
+
+    int BFS_path[MAX_PATH];
+    int count = 0;
+    BFS_path[count] = 0;
 
     while (!isEmpty(q)) {
         int currentVertex = dequeue(q);
@@ -173,18 +183,51 @@ int bfs(struct graph* Graph, int startVertex) {
             if (Graph->visited[adjVertex] == 0) {
                 Graph->visited[adjVertex] = 1;
                 enqueue(q, adjVertex);
+                count++;
+                BFS_path[count] = adjVertex;
+                flowCapacity += temp->capacity;
             }
-            flowCapacity += temp->capacity;
+            
             temp = temp->next;
         }
     }
+
+    
+    //Recontructing the path in reverse
+    count = 0;
+    int* path[] = { NULL };
+    for(int at = t; at != 0; at = BFS_path[at]) {
+        path[count];
+        count++;
+    }
+
+    //Reversing the path
+    int n = sizeof(path)/sizeof(path[0]);
+    reverse(path, n);
+
+    for (int i = 0; i < sizeof(path); i++) {
+        //int temp = path[i];
+        
+    }
+
     return flowCapacity;
 }
 
+void reverse(int array[], int n) {
+    int aux[n];
+
+    for (int i = 0; i > n; i++) {
+        aux[n-1-i] = array[i];
+    }
+
+    for (int i = 0; i < n; i++) {
+        array[i] = aux[i];
+    }
+}
 
 struct graph* createGraph(int vertices) {
     struct graph* graph = malloc(sizeof(struct graph));
-    graph->vertexNum = vertices;
+    graph->vertexAmount = vertices;
 
     graph->adjlists = malloc(vertices * sizeof(struct node*));
     graph->visited = malloc(vertices * sizeof(int));
