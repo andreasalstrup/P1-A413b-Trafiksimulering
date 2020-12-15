@@ -123,6 +123,17 @@ void DFS(Graph* graph, int startVertex) {
 
 }
 
+/**
+ * cleanVisitedArray: re-set the values back to 0 so we can DFS again
+ * @param graph a graph structure
+ * @return void
+*/
+void cleanVisitedArray(Graph* graph) {
+    for (int i = 0; i < graph->numVertices + 1; i++) {
+        graph->visited[i] = 0; 
+    }
+}
+
 int min(int num1, int num2) {
    return (num1 < num2) ? num1 : num2;
 }
@@ -135,10 +146,9 @@ int min(int num1, int num2) {
 */
 int BFS(Graph* graph, int startVertex, int endNode) {
     Queue* q = createQueue();
+    Queue* prev = createQueue();                                                            /* Laver prev kø */
 
-    Queue* prev = createQueue();                                                    /* Laver prev kø */
-
-    int currentPathCapacity = 999;
+    int currentPathCapacity = graph->adjList[startVertex]->weight;
     graph->visited[startVertex] = 1;
     enqueue(q, startVertex);
 
@@ -146,38 +156,33 @@ int BFS(Graph* graph, int startVertex, int endNode) {
         //printQueue(q);
         int currentVertex = dequeue(q);
         printf("%d[%d] ", currentVertex, graph->adjList[currentVertex]->weight);
+        
+        enqueue(prev, currentVertex);                                                       /* Tilføjes til prev kø */
 
         Node* temp = graph->adjList[currentVertex];
         while (temp) {
             int neighbor = temp->data;
 
-            if (graph->visited[neighbor] == 0) {
+            if (graph->visited[neighbor] == 0 && graph->adjList[currentVertex]->weight != 0) {
                 graph->visited[neighbor] = 1;
                 enqueue(q, neighbor);
             }            
             temp = temp->next;
             
             if(currentPathCapacity > graph->adjList[currentVertex]->weight) {
-                enqueue(prev, graph->adjList[currentVertex]->data);                 /* Tilføjes til prev kø */
                 currentPathCapacity = graph->adjList[currentVertex]->weight;
                 
                 if (graph->adjList[currentVertex]->data == endNode) {   
                     
+                    printQueue(prev);
                     while (!isEmpty(prev)) {
                         int currentPrev = dequeue(prev);
                         printf("\nBefore[%d]\n", graph->adjList[currentPrev]->weight); 
-                        graph->adjList[currentPrev]->weight -= currentPathCapacity; /* Sætter min kapacity*/
+                        graph->adjList[currentPrev]->weight -= currentPathCapacity;         /* Sætter min kapacitet til knuder i prev kø */
                         printf("After[%d]\n", graph->adjList[currentPrev]->weight);
                     }
-                    
 
-                    /*
-                    for (int i = 0; i <= currentVertex; i++) {
-                        graph->adjList[currentVertex - i]->weight -= currentPathCapacity;
-                        printf("[%d]: %d weight\n", i, graph->adjList[currentVertex - i]->weight);
-                    }
-                    */
-
+                    cleanVisitedArray(graph);
                     return currentPathCapacity;
                 }
             }
@@ -215,16 +220,6 @@ int BFS(Graph* graph, int startVertex, int endNode) {
 }
 
 
-/**
- * cleanVisitedArray: re-set the values back to 0 so we can DFS again
- * @param graph a graph structure
- * @return void
-*/
-void cleanVisitedArray(Graph* graph) {
-    for (int i = 0; i < graph->numVertices + 1; i++) {
-        graph->visited[i] = 0; 
-    }
-}
 
 int edmonds_karp_algo(Graph* graph, int s, int t) {
     Queue* prev = createQueue();                                    /* rebuild augmented path - 3:50 https://www.youtube.com/watch?v=OViaWp9Q-Oc */
@@ -238,7 +233,6 @@ int edmonds_karp_algo(Graph* graph, int s, int t) {
     
     
     while (1) {
-
 
         flow = BFS(graph, s, t);
         printf("\n\nBFS Result: %d\n", flow);
@@ -305,7 +299,7 @@ int main() {
     addEdge(graph, 1, 4, 12);
     addEdge(graph, 2, 0, 15);
     addEdge(graph, 5, 3, 15); // max flow skal være 12 // source: 0 sink: 4
-    */
+    //*/
     ///*
     Graph* graph = createGraph(6);
     addEdge(graph, 0, 1, 16);
