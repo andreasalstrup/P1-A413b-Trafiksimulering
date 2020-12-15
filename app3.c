@@ -36,12 +36,10 @@ void enqueue();
 int dequeue();
 int isEmpty();
 int bfs();
-void reverse();
-/* End of queue prototypes */
-
+int min();
 void add_node();
-void print_list();
-int edmonds_karp_algo();
+//int edmonds_karp_algo();
+/* End of queue prototypes */
 
 int main(void) {
 
@@ -108,7 +106,7 @@ struct node* createNode(int v, int c) {
 
 int bfs(struct graph* Graph, int startVertex) {
     
-    int flowCapacity = 0;
+    int bottleneckValue = 0;
     struct queue* q = createQueue();
 
     Graph->visited[startVertex] = 1;
@@ -149,24 +147,19 @@ int bfs(struct graph* Graph, int startVertex) {
 
     for (int i = 0; i < pathCounter; i++) {
         int temp = path[i];
-        flowCapacity += Graph->adjlists[temp]->capacity;
+        if (i == 0) {
+            bottleneckValue = Graph->adjlists[temp]->capacity;
+        }
+        bottleneckValue = min(Graph->adjlists[temp]->capacity, bottleneckValue);
     }
 
-    printf("Flow calculated. Returning..\n");
+    printf("Bottleneck calculated. Returning..\n");
 
-    return flowCapacity;
+    return bottleneckValue;
 }
 
-void reverse(int array[], int n) {
-    int aux[n];
-
-    for (int i = 0; i > n; i++) {
-        aux[n-1-i] = array[i];
-    }
-
-    for (int i = 0; i < n; i++) {
-        array[i] = aux[i];
-    }
+int min(int num1, int num2) {
+   return (num1 < num2) ? num1 : num2;
 }
 
 struct graph* createGraph(int vertices) {
