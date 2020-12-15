@@ -181,7 +181,7 @@ int BFS(Graph* graph, int startVertex, int endNode) {
                         graph->adjList[currentPrev]->weight -= currentPathCapacity;         /* Sætter min kapacitet til knuder i prev kø */
                         printf("After[%d]\n", graph->adjList[currentPrev]->weight);
                     }
-
+                    
                     cleanVisitedArray(graph);
                     return currentPathCapacity;
                 }
@@ -218,8 +218,6 @@ int BFS(Graph* graph, int startVertex, int endNode) {
     }
     return 0;
 }
-
-
 
 int edmonds_karp_algo(Graph* graph, int s, int t) {
     Queue* prev = createQueue();                                    /* rebuild augmented path - 3:50 https://www.youtube.com/watch?v=OViaWp9Q-Oc */
