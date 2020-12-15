@@ -128,6 +128,17 @@ int min(int num1, int num2) {
 }
 
 /**
+ * cleanVisitedArray: re-set the values back to 0 so we can DFS again
+ * @param graph a graph structure
+ * @return void
+*/
+void cleanVisitedArray(Graph* graph) {
+    for (int i = 0; i < graph->numVertices + 1; i++) {
+        graph->visited[i] = 0; 
+    }
+}
+
+/**
  * BFS: iterative breadth first search implementation
  * @param graph a graph structure
  * @param startVertex the starting vertex
@@ -177,7 +188,7 @@ int BFS(Graph* graph, int startVertex, int endNode) {
                         printf("[%d]: %d weight\n", i, graph->adjList[currentVertex - i]->weight);
                     }
                     */
-
+                    cleanVisitedArray(graph);
                     return currentPathCapacity;
                 }
             }
@@ -212,18 +223,6 @@ int BFS(Graph* graph, int startVertex, int endNode) {
         }
     }
     return 0;
-}
-
-
-/**
- * cleanVisitedArray: re-set the values back to 0 so we can DFS again
- * @param graph a graph structure
- * @return void
-*/
-void cleanVisitedArray(Graph* graph) {
-    for (int i = 0; i < graph->numVertices + 1; i++) {
-        graph->visited[i] = 0; 
-    }
 }
 
 int edmonds_karp_algo(Graph* graph, int s, int t) {

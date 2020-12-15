@@ -40,6 +40,7 @@ int bfs();
 int min();
 void add_node();
 void cleanVisitedArray();
+void clearArray();
 //int edmonds_karp_algo();
 /* End of queue prototypes */
 
@@ -75,13 +76,13 @@ int main(void) {
 
     printf("BFS begins\n");
 
-    int bfsRes = bfs(Graph, 0);
+    int bfsRes = bfs(Graph, 0, 5);
 
     printf("%d\n", bfsRes);
 
     cleanVisitedArray(Graph);
 
-    bfsRes = bfs(Graph, 0);
+    bfsRes = bfs(Graph, 0, 5);
     printf("%d\n", bfsRes);
     return 0;
 }
@@ -108,7 +109,7 @@ struct node* createNode(int v, int c) {
     return newNode;
 }
 
-int bfs(struct graph* Graph, int startVertex) {
+int bfs(struct graph* Graph, int startVertex, int end) {
     
     int bottleneckValue = 0;
     struct queue* q = createQueue();
@@ -132,16 +133,12 @@ int bfs(struct graph* Graph, int startVertex) {
             if (Graph->adjlists[adjVertex]->deadNodeToken == 1) {
                 //cleanVisitedArray(Graph);
                 //Graph->visited[adjVertex] = 1;
-                //bfs(Graph, 0);
-                pathCounter = 0;
-                //Empty Path array
                 printf("-------------DEAD NOTE FOUND-------------\n");
-                break;
-                break;
+                printf("-------------- VERTEX %d -------------\n", Graph->adjlists[adjVertex]->vertexNum);
             }
 
-            if (adjVertex != 0 && Graph->visited[adjVertex] == 0) {
-                if (adjVertex > lastVertex + 1) {
+            if (adjVertex != 0 && Graph->visited[adjVertex] == 0 && Graph->adjlists[adjVertex]->deadNodeToken != 1) {
+                if (adjVertex > lastVertex) {
                     printf("--- adjVertex: %d -- lastVertex: %d ---\n", adjVertex, lastVertex);
                     pathCounter++;
                     path[pathCounter] = adjVertex;
@@ -149,8 +146,8 @@ int bfs(struct graph* Graph, int startVertex) {
                 lastVertex = adjVertex;
             }
 
-            if (Graph->adjlists[adjVertex]->capacity == 0) {
-                Graph->adjlists[adjVertex]->deadNodeToken = 1;
+            if (Graph->adjlists[adjVertex]->deadNodeToken == 1) {
+                Graph->visited[adjVertex] = 1;
             }
 
             if (Graph->visited[adjVertex] == 0 && Graph->adjlists[adjVertex]->capacity != 0) {
@@ -161,6 +158,11 @@ int bfs(struct graph* Graph, int startVertex) {
             temp = temp->next;
         }
     }
+
+/*
+            clearArray(path, pathCounter);
+            pathCounter = 0;
+*/
 
     printf("BFS Complete\n");
 
@@ -176,6 +178,9 @@ int bfs(struct graph* Graph, int startVertex) {
         int temp = path[i];
         Graph->adjlists[temp]->capacity -= bottleneckValue;
         printf("New Capacity: %d  For Vertex: %d\n", Graph->adjlists[temp]->capacity, temp);
+        if (Graph->adjlists[temp]->capacity == 0) {
+            Graph->adjlists[temp]->deadNodeToken = 1;
+        }
     }
 
     printf("Bottleneck calculated and Capacity adjusted. Returning..\n");
@@ -190,6 +195,12 @@ int min(int num1, int num2) {
 void cleanVisitedArray(struct graph* Graph) {
     for (int i = 0; i < Graph->vertexAmount + 1; i++) {
         Graph->visited[i] = 0; 
+    }
+}
+
+void clearArray(int array[], int counter) {
+    for (int i = 0; i > counter; i++) {
+        array[counter] = 0;
     }
 }
 
