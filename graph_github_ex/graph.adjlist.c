@@ -148,8 +148,12 @@ int BFS(Graph* graph, int startVertex, int endNode) {
     Queue* q = createQueue();
     Queue* prev = createQueue();                                                            /* Laver prev kø */
 
-    int currentPathCapacity = graph->adjList[startVertex]->weight;
-    graph->visited[startVertex] = 1;
+    int currentPathCapacity;
+    if (graph->visited[startVertex] == 0 /*&& (graph->adjList[startVertex]->weight >= 0)*/) {
+        graph->visited[startVertex] = 1;
+        currentPathCapacity = graph->adjList[startVertex]->weight;
+        //enqueue(prev, startVertex);
+    } 
     enqueue(q, startVertex);
 
     while (!isEmpty(q)) {
@@ -163,12 +167,14 @@ int BFS(Graph* graph, int startVertex, int endNode) {
         while (temp) {
             int neighbor = temp->data;
 
+            //printf("\nBEFORE VISITED: %d Vertex[%d]\n", graph->visited[neighbor], graph->adjList[currentVertex]->data);
+
             if (graph->visited[neighbor] == 0 && (graph->adjList[neighbor]->weight >= 0)) {
                 graph->visited[neighbor] = 1;
                 enqueue(q, neighbor);
-            }            
+            }                    
             
-            if(currentPathCapacity > graph->adjList[currentVertex]->weight ) {
+            if (currentPathCapacity > graph->adjList[currentVertex]->weight ) {
                 if (graph->adjList[currentVertex]->weight > 0) {
                     currentPathCapacity = graph->adjList[currentVertex]->weight;
                 }
@@ -304,7 +310,7 @@ int main() {
     addEdge(graph, 2, 0, 15);
     addEdge(graph, 5, 3, 15); // max flow skal være 12 // source: 0 sink: 4
     //*/
-    ///*
+    /*
     Graph* graph = createGraph(6);
     addEdge(graph, 0, 1, 16);
     addEdge(graph, 0, 2, 13);
@@ -316,7 +322,16 @@ int main() {
     addEdge(graph, 4, 3, 7);
     addEdge(graph, 3, 5, 20);
     addEdge(graph, 4, 5, 4); // max flow skal være 23 // source: 0 sink: 5
-    //*/
+    */
+
+    Graph* graph = createGraph(6);
+    addEdge(graph, 0, 1, 11);
+    addEdge(graph, 0, 2, 7);
+    addEdge(graph, 1, 3, 7);
+    addEdge(graph, 2, 4, 5);
+    addEdge(graph, 3, 5, 3);
+    addEdge(graph, 4, 5, 11); // max flow skal være 8 // source: 0 sink: 5
+
     printGraph(graph);
     
     //printf("\nDFS: ");
