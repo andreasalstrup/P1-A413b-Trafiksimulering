@@ -49,15 +49,15 @@ int main(void) {
 
  // /*
     add_node(Graph, 0, 1, 16);
-    add_node(Graph, 0, 2, 13); 
+    add_node(Graph, 0, 2, 13);
     add_node(Graph, 1, 2, 10);
     //add_node(Graph, 2, 1, 4);
     add_node(Graph, 1, 3, 12);
-    add_node(Graph, 2, 4, 14); 
+    add_node(Graph, 2, 4, 14);
     //add_node(Graph, 3, 2, 9);
     //add_node(Graph, 4, 3, 7);
     add_node(Graph, 3, 5, 20);
-    add_node(Graph, 4, 5, 4); 
+    add_node(Graph, 4, 5, 4);
  // */
   /*
     add_node(Graph, 0, 1, 5);   //3rd
@@ -114,11 +114,8 @@ int bfs(struct graph* Graph, int startVertex) {
     Graph->visited[startVertex] = 1;
     enqueue(q, startVertex);
 
-    int BFS_path[MAX_NODE];
-    int count = 0;
-    BFS_path[count] = 0;
+    int BFS_path[MAX_NODE]; //Can't remove, causes stack smashing for whatever reason
 
-    printf("Count : %d  Vertex: %d  Capacity: %d\n", count, BFS_path[0], 0);
     int path[] = {}; path[0] = 0;
     int pathCounter = 0;
     int lastVertex = 0;
@@ -132,7 +129,7 @@ int bfs(struct graph* Graph, int startVertex) {
             
             if (adjVertex != 0 && Graph->visited[adjVertex] == 0) {
                 if (adjVertex > lastVertex + 1) {
-                    printf("adjVertex: %d   lastVertex: %d\n", adjVertex, lastVertex);
+                    printf("--- adjVertex: %d -- lastVertex: %d ---\n", adjVertex, lastVertex);
                     pathCounter++;
                     path[pathCounter] = adjVertex;
                 }
@@ -142,41 +139,14 @@ int bfs(struct graph* Graph, int startVertex) {
             if (Graph->visited[adjVertex] == 0) {
                 Graph->visited[adjVertex] = 1;
                 enqueue(q, adjVertex);
-                count++;
-                //BFS_path[count] = adjVertex;
-                
-                printf("Count : %d  Curr_Vertex: %d  Capacity: %d\n", count, adjVertex, temp->capacity);
+                printf("Curr_Vertex: %d  Capacity: %d\n", adjVertex, temp->capacity);
             }
-            //flowCapacity += temp->capacity;
             temp = temp->next;
         }
     }
 
     printf("BFS Complete\n");
 
-/*
-    //Recontructing the path in reverse
-    count = 0;
-    int path[MAX_NODE];
-
-    for(int i = 0; i < MAX_NODE; i++) {
-        path[i] = 0;
-    }
-
-    for(int at = t; at != 0; at = BFS_path[at]) {
-        printf("%d\n", at);
-        path[count];
-        count++;
-    }
-
-    printf("Path Constructed\n");
-
-    //Reversing the path
-    int n = sizeof(path)/sizeof(path[0]);
-    reverse(path, n);
-
-    printf("Path Reversed\n");
-*/
     for (int i = 0; i < pathCounter; i++) {
         int temp = path[i];
         flowCapacity += Graph->adjlists[temp]->capacity;
