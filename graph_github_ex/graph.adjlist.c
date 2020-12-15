@@ -135,7 +135,8 @@ int min(int num1, int num2) {
 */
 int BFS(Graph* graph, int startVertex, int endNode) {
     Queue* q = createQueue();
-    int currentPathCapacity = 999;
+    //int currentPathCapacity = 999;
+    int currentPathCapacity;
 
     graph->visited[startVertex] = 1;
     enqueue(q, startVertex);
@@ -156,9 +157,6 @@ int BFS(Graph* graph, int startVertex, int endNode) {
             }            
             temp = temp->next;
             
-
-
-
             //const int flowPassed = graph->adjList[startVertex]->weight;
             //currentPathCapacity = graph->adjList[currentVertex]->weight;
             //printf("flowPassed: %d\n", flowPassed);
@@ -173,7 +171,12 @@ int BFS(Graph* graph, int startVertex, int endNode) {
                 //return currentPathCapacity;
             //}
 
-            currentPathCapacity = min(currentPathCapacity, graph->adjList[currentVertex]->weight);
+            if (graph->visited[currentVertex] > 0) {
+                graph->visited[currentVertex] = 1;
+                currentPathCapacity = graph->adjList[currentVertex]->weight;
+            }
+
+            //currentPathCapacity = min(currentPathCapacity, graph->adjList[currentVertex]->weight);
             //printf("\ncurrentPathCapacity: %d\n", currentPathCapacity);
             //printf("weight: %d\n\n", graph->adjList[currentVertex]->weight);
 
@@ -200,12 +203,14 @@ void cleanVisitedArray(Graph* graph) {
 }
 
 int edmonds_karp_algo(Graph* graph, int s, int t) {
+    Queue* prev = createQueue();                                    /* rebuild augmented path - 3:50 https://www.youtube.com/watch?v=OViaWp9Q-Oc */
+
     int flow;
     int maxFlow = 0;
     int i = 0;
-    //int currentNode = t;
+
     int currentNode = t;
-    int prevNode = currentNode - 1;
+    int prevNode = currentNode - 1;                                 /* prevNode muligvis fejlen */
     
     while (1) {
         flow = BFS(graph, s, t);
@@ -216,13 +221,18 @@ int edmonds_karp_algo(Graph* graph, int s, int t) {
 
         maxFlow += flow;
         while (currentNode != s) {
-            //int prevNode = graph->adjList[currentNode--]->data;     /* FIX = LØSNING? */
 
-            printf("[%d]currentNode: %d\n", i++, currentNode);
-            //printf("prevNode: %d\n", prevNode);
+            //enqueue(prev, currentNode);
+            //int prevNode = dequeue(prev);
+
+            printf("[%d]currNode: %d\n", i, currentNode);
+            printf("[%d]prevNode: %d\n", i, prevNode);
+
+            printf("[%d]Flow:     %d\n", i, flow);
             flow += graph->adjList[currentNode]->weight;
+            printf("[%d]+Flow:     %d\n", i, graph->adjList[currentNode]->weight);
             flow -= graph->adjList[prevNode]->weight;
-            printf("Flow: %d\n", flow);
+            printf("[%d]-Flow:     %d\n\n", i++, graph->adjList[prevNode]->weight);
             
             currentNode = prevNode--;
         }
