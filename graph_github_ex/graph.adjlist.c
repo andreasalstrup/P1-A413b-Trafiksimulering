@@ -163,14 +163,15 @@ int BFS(Graph* graph, int startVertex, int endNode) {
         while (temp) {
             int neighbor = temp->data;
 
-            if (graph->visited[neighbor] == 0 && graph->adjList[currentVertex]->weight != 0) {
+            if (graph->visited[neighbor] == 0 && (graph->adjList[neighbor]->weight >= 0)) {
                 graph->visited[neighbor] = 1;
                 enqueue(q, neighbor);
             }            
-            temp = temp->next;
             
-            if(currentPathCapacity > graph->adjList[currentVertex]->weight) {
-                currentPathCapacity = graph->adjList[currentVertex]->weight;
+            if(currentPathCapacity > graph->adjList[currentVertex]->weight ) {
+                if (graph->adjList[currentVertex]->weight > 0) {
+                    currentPathCapacity = graph->adjList[currentVertex]->weight;
+                }
                 
                 if (graph->adjList[currentVertex]->data == endNode) {   
                     
@@ -180,19 +181,17 @@ int BFS(Graph* graph, int startVertex, int endNode) {
                         printf("\nBefore[%d]\n", graph->adjList[currentPrev]->weight); 
                         graph->adjList[currentPrev]->weight -= currentPathCapacity;         /* Sætter min kapacitet til knuder i prev kø */
                         printf("After[%d]\n", graph->adjList[currentPrev]->weight);
+
+                        if (graph->adjList[currentPrev]->weight >= 0) {
+                            graph->visited[currentPrev] = 1;
+                        }
                     }
                     
-
-                    /*
-                    for (int i = 0; i <= currentVertex; i++) {
-                        graph->adjList[currentVertex - i]->weight -= currentPathCapacity;
-                        printf("[%d]: %d weight\n", i, graph->adjList[currentVertex - i]->weight);
-                    }
-                    */
                     cleanVisitedArray(graph);
                     return currentPathCapacity;
                 }
             }
+            temp = temp->next;
 
 
             //const int flowPassed = graph->adjList[startVertex]->weight;
@@ -324,7 +323,7 @@ int main() {
     //DFS(graph, 0);
     //printf("\n");
 
-    cleanVisitedArray(graph);
+    //cleanVisitedArray(graph);
     //printf("BFS: ");
     //BFS(graph, 0, 5);
     printf("Edmonds Karp: %d\n",edmonds_karp_algo(graph, 0, 5));  // Skift efter s og t
