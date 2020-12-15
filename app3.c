@@ -12,6 +12,7 @@ typedef struct node {
     int vertexNum;                              // Knudepunkt nummer
     struct node *next;                          // Holder adressen til næste node (vertex)
     int capacity;                               // Kapaciteten fra knudepunktet
+    int deadNodeToken;
 } node;
 
 /* Queue struct */
@@ -38,6 +39,7 @@ int isEmpty();
 int bfs();
 int min();
 void add_node();
+void cleanVisitedArray();
 //int edmonds_karp_algo();
 /* End of queue prototypes */
 
@@ -49,11 +51,8 @@ int main(void) {
     add_node(Graph, 0, 1, 16);
     add_node(Graph, 0, 2, 13);
     add_node(Graph, 1, 2, 10);
-    //add_node(Graph, 2, 1, 4);
     add_node(Graph, 1, 3, 12);
     add_node(Graph, 2, 4, 14);
-    //add_node(Graph, 3, 2, 9);
-    //add_node(Graph, 4, 3, 7);
     add_node(Graph, 3, 5, 20);
     add_node(Graph, 4, 5, 4);
  // */
@@ -78,6 +77,11 @@ int main(void) {
 
     int bfsRes = bfs(Graph, 0);
 
+    printf("%d\n", bfsRes);
+
+    cleanVisitedArray(Graph);
+
+    bfsRes = bfs(Graph, 0);
     printf("%d\n", bfsRes);
     return 0;
 }
@@ -124,7 +128,18 @@ int bfs(struct graph* Graph, int startVertex) {
 
         while (temp) {
             int adjVertex = temp->vertexNum;
-            
+
+            if (Graph->adjlists[adjVertex]->deadNodeToken == 1) {
+                //cleanVisitedArray(Graph);
+                //Graph->visited[adjVertex] = 1;
+                //bfs(Graph, 0);
+                pathCounter = 0;
+                //Empty Path array
+                printf("-------------DEAD NOTE FOUND-------------\n");
+                break;
+                break;
+            }
+
             if (adjVertex != 0 && Graph->visited[adjVertex] == 0) {
                 if (adjVertex > lastVertex + 1) {
                     printf("--- adjVertex: %d -- lastVertex: %d ---\n", adjVertex, lastVertex);
@@ -133,8 +148,12 @@ int bfs(struct graph* Graph, int startVertex) {
                 }
                 lastVertex = adjVertex;
             }
-            
-            if (Graph->visited[adjVertex] == 0) {
+
+            if (Graph->adjlists[adjVertex]->capacity == 0) {
+                Graph->adjlists[adjVertex]->deadNodeToken = 1;
+            }
+
+            if (Graph->visited[adjVertex] == 0 && Graph->adjlists[adjVertex]->capacity != 0) {
                 Graph->visited[adjVertex] = 1;
                 enqueue(q, adjVertex);
                 printf("Curr_Vertex: %d  Capacity: %d\n", adjVertex, temp->capacity);
@@ -153,13 +172,25 @@ int bfs(struct graph* Graph, int startVertex) {
         bottleneckValue = min(Graph->adjlists[temp]->capacity, bottleneckValue);
     }
 
-    printf("Bottleneck calculated. Returning..\n");
+    for (int i = 0; i < pathCounter; i++) {
+        int temp = path[i];
+        Graph->adjlists[temp]->capacity -= bottleneckValue;
+        printf("New Capacity: %d  For Vertex: %d\n", Graph->adjlists[temp]->capacity, temp);
+    }
+
+    printf("Bottleneck calculated and Capacity adjusted. Returning..\n");
 
     return bottleneckValue;
 }
 
 int min(int num1, int num2) {
    return (num1 < num2) ? num1 : num2;
+}
+
+void cleanVisitedArray(struct graph* Graph) {
+    for (int i = 0; i < Graph->vertexAmount + 1; i++) {
+        Graph->visited[i] = 0; 
+    }
 }
 
 struct graph* createGraph(int vertices) {
