@@ -139,17 +139,6 @@ int min(int num1, int num2) {
 }
 
 /**
- * cleanVisitedArray: re-set the values back to 0 so we can DFS again
- * @param graph a graph structure
- * @return void
-*/
-void cleanVisitedArray(Graph* graph) {
-    for (int i = 0; i < graph->numVertices + 1; i++) {
-        graph->visited[i] = 0; 
-    }
-}
-
-/**
  * BFS: iterative breadth first search implementation
  * @param graph a graph structure
  * @param startVertex the starting vertex
