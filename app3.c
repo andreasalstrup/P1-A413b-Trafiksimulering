@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//DEBUG TOOL: valgrind --tool=memcheck --leak-check=yes -v --leak-check=full --show-reachable=yes ./test
+
 #define MAX_NODE 9
 #define CAPACITY 40                             //Placeholder value - Amount of nodes BFS has to run through
 #define MAX_PATH 20
@@ -112,6 +114,9 @@ int bfs(struct graph* Graph, int startVertex, int t) {
     BFS_path[count] = 0;
 
     printf("Count : %d  Vertex: %d  Capacity: %d\n", count, BFS_path[0], 0);
+    int path[MAX_NODE]; path[0] = 0;
+    int pathCounter = 0;
+    int lastVertex = 0;
 
     while (!isEmpty(q)) {
         int currentVertex = dequeue(q);
@@ -119,7 +124,16 @@ int bfs(struct graph* Graph, int startVertex, int t) {
 
         while (temp) {
             int adjVertex = temp->vertexNum;
-
+            
+            if (adjVertex != 0 && Graph->visited[adjVertex] == 0) {
+                if (adjVertex > lastVertex + 1) {
+                    printf("adjVertex: %d   lastVertex: %d\n", adjVertex, lastVertex);
+                    pathCounter++;
+                    path[pathCounter] = adjVertex;
+                }
+                lastVertex = adjVertex;
+            }
+            
             if (Graph->visited[adjVertex] == 0) {
                 Graph->visited[adjVertex] = 1;
                 enqueue(q, adjVertex);
@@ -134,6 +148,7 @@ int bfs(struct graph* Graph, int startVertex, int t) {
     }
 
     printf("BFS Complete\n");
+
 /*
     //Recontructing the path in reverse
     count = 0;
@@ -156,14 +171,14 @@ int bfs(struct graph* Graph, int startVertex, int t) {
     reverse(path, n);
 
     printf("Path Reversed\n");
-
+*/
     for (int i = 0; i < sizeof(path); i++) {
         int temp = path[i];
-        flowCapacity = Graph->adjlists[i]->capacity;
+        flowCapacity = Graph->adjlists[temp]->capacity;
     }
 
     printf("Flow calculated. Returning..\n");
-*/
+
     return flowCapacity;
 }
 
