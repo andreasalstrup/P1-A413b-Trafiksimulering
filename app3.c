@@ -58,10 +58,12 @@ int main(void) {
     add_node(Graph, 0, 1, 5);   //3rd
     add_node(Graph, 0, 2, 10);  //2nd
     add_node(Graph, 0, 3, 15);  //1st //Source
+
     add_node(Graph, 1, 4, 10);  //6th
     add_node(Graph, 1, 5, 5);   
     add_node(Graph, 2, 5, 10);  //5th
     add_node(Graph, 3, 6, 5);   //4th //Mid
+    
     add_node(Graph, 4, 7, 5);
     add_node(Graph, 5, 7, 15);
     add_node(Graph, 6, 7, 10);  //7th //Sink
