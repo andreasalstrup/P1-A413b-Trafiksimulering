@@ -135,17 +135,17 @@ int min(int num1, int num2) {
 */
 int BFS(Graph* graph, int startVertex, int endNode) {
     Queue* q = createQueue();
-    //int currentPathCapacity = 999;
-    int currentPathCapacity;
 
+    Queue* prev = createQueue();                                                    /* Laver prev kø */
+
+    int currentPathCapacity = 999;
     graph->visited[startVertex] = 1;
     enqueue(q, startVertex);
 
     while (!isEmpty(q)) {
         //printQueue(q);
         int currentVertex = dequeue(q);
-        printf("%d w:%d ", currentVertex, graph->adjList[currentVertex]->weight);
-
+        printf("%d[%d] ", currentVertex, graph->adjList[currentVertex]->weight);
 
         Node* temp = graph->adjList[currentVertex];
         while (temp) {
@@ -157,6 +157,32 @@ int BFS(Graph* graph, int startVertex, int endNode) {
             }            
             temp = temp->next;
             
+            if(currentPathCapacity > graph->adjList[currentVertex]->weight) {
+                enqueue(prev, graph->adjList[currentVertex]->data);                 /* Tilføjes til prev kø */
+                currentPathCapacity = graph->adjList[currentVertex]->weight;
+                
+                if (graph->adjList[currentVertex]->data == endNode) {   
+                    
+                    while (!isEmpty(prev)) {
+                        int currentPrev = dequeue(prev);
+                        printf("\nBefore[%d]\n", graph->adjList[currentPrev]->weight); 
+                        graph->adjList[currentPrev]->weight -= currentPathCapacity; /* Sætter min kapacity*/
+                        printf("After[%d]\n", graph->adjList[currentPrev]->weight);
+                    }
+                    
+
+                    /*
+                    for (int i = 0; i <= currentVertex; i++) {
+                        graph->adjList[currentVertex - i]->weight -= currentPathCapacity;
+                        printf("[%d]: %d weight\n", i, graph->adjList[currentVertex - i]->weight);
+                    }
+                    */
+
+                    return currentPathCapacity;
+                }
+            }
+
+
             //const int flowPassed = graph->adjList[startVertex]->weight;
             //currentPathCapacity = graph->adjList[currentVertex]->weight;
             //printf("flowPassed: %d\n", flowPassed);
@@ -171,18 +197,16 @@ int BFS(Graph* graph, int startVertex, int endNode) {
                 //return currentPathCapacity;
             //}
 
-            if (graph->visited[currentVertex] > 0) {
-                graph->visited[currentVertex] = 1;
-                currentPathCapacity = graph->adjList[currentVertex]->weight;
-            }
+
+            //if (graph->visited[currentVertex] == 0) {
+            //    graph->visited[currentVertex] = 1;
+            //    currentPathCapacity = graph->adjList[currentVertex]->weight;
+            //}
 
             //currentPathCapacity = min(currentPathCapacity, graph->adjList[currentVertex]->weight);
             //printf("\ncurrentPathCapacity: %d\n", currentPathCapacity);
             //printf("weight: %d\n\n", graph->adjList[currentVertex]->weight);
 
-            if (graph->adjList[currentVertex]->data == endNode) {
-                return currentPathCapacity;
-            }
 
             //enqueue(q, graph->adjList[currentVertex]->data);
         }
@@ -212,7 +236,10 @@ int edmonds_karp_algo(Graph* graph, int s, int t) {
     int currentNode = t;
     int prevNode = currentNode - 1;                                 /* prevNode muligvis fejlen */
     
+    
     while (1) {
+
+
         flow = BFS(graph, s, t);
         printf("\n\nBFS Result: %d\n", flow);
         if (flow == 0) {
@@ -221,20 +248,24 @@ int edmonds_karp_algo(Graph* graph, int s, int t) {
 
         maxFlow += flow;
         while (currentNode != s) {
+            enqueue(prev, currentNode);
+
+            prevNode = dequeue(prev) - 1;
 
             //enqueue(prev, currentNode);
             //int prevNode = dequeue(prev);
 
-            printf("[%d]currNode: %d\n", i, currentNode);
-            printf("[%d]prevNode: %d\n", i, prevNode);
 
-            printf("[%d]Flow:     %d\n", i, flow);
-            flow += graph->adjList[currentNode]->weight;
-            printf("[%d]+Flow:     %d\n", i, graph->adjList[currentNode]->weight);
-            flow -= graph->adjList[prevNode]->weight;
-            printf("[%d]-Flow:     %d\n\n", i++, graph->adjList[prevNode]->weight);
-            
-            currentNode = prevNode--;
+            //flow += graph->adjList[currentNode]->weight;
+            graph->adjList[currentNode]->weight += flow;
+
+            //flow -= graph->adjList[prevNode]->weight;
+            graph->adjList[prevNode]->weight -= flow;
+           
+            //currentNode = prevNode--;
+            //currentNode = dequeue(prev) - 1;
+            //break;
+            currentNode = prevNode;
         }
         printf("Outflow: %d\n", flow);
         
@@ -295,7 +326,7 @@ int main() {
     //printf("\n");
 
     cleanVisitedArray(graph);
-    printf("BFS: ");
+    //printf("BFS: ");
     //BFS(graph, 0, 5);
     printf("Edmonds Karp: %d\n",edmonds_karp_algo(graph, 0, 5));  // Skift efter s og t
 
