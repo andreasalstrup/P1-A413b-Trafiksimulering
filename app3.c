@@ -3,7 +3,7 @@
 
 //DEBUG TOOL: valgrind --tool=memcheck --leak-check=yes -v --leak-check=full --show-reachable=yes ./test
 
-#define MAX_NODE 9
+#define MAX_NODE 6
 #define CAPACITY 40                             //Placeholder value - Amount of nodes BFS has to run through
 #define MAX_PATH 20
 
@@ -47,16 +47,19 @@ int main(void) {
 
     struct graph* Graph = createGraph(MAX_NODE);
 
-/*
-    add_node(Graph, 0, 1, 14);
-    add_node(Graph, 2, 4, 10);
-    add_node(Graph, 6, 7, 9);
-    add_node(Graph, 5, 2, 10);
-    add_node(Graph, 1, 4, 12);
-    add_node(Graph, 2, 0, 15);
-    add_node(Graph, 5, 3, 15);
-*/
-
+ // /*
+    add_node(Graph, 0, 1, 16);
+    add_node(Graph, 0, 2, 13); 
+    add_node(Graph, 1, 2, 10);
+    //add_node(Graph, 2, 1, 4);
+    add_node(Graph, 1, 3, 12);
+    add_node(Graph, 2, 4, 14); 
+    //add_node(Graph, 3, 2, 9);
+    //add_node(Graph, 4, 3, 7);
+    add_node(Graph, 3, 5, 20);
+    add_node(Graph, 4, 5, 4); 
+ // */
+  /*
     add_node(Graph, 0, 1, 5);   //3rd
     add_node(Graph, 0, 2, 10);  //2nd
     add_node(Graph, 0, 3, 15);  //1st //Source
@@ -70,10 +73,12 @@ int main(void) {
     add_node(Graph, 5, 7, 15);
     add_node(Graph, 6, 7, 10);  //7th //Sink
 
+    add_node(Graph, 7, 9, 10); //8th //Testsink
+  */
 
     printf("BFS begins\n");
 
-    int bfsRes = bfs(Graph, 0, 7);
+    int bfsRes = bfs(Graph, 0);
 
     printf("%d\n", bfsRes);
     return 0;
@@ -101,7 +106,7 @@ struct node* createNode(int v, int c) {
     return newNode;
 }
 
-int bfs(struct graph* Graph, int startVertex, int t) {
+int bfs(struct graph* Graph, int startVertex) {
     
     int flowCapacity = 0;
     struct queue* q = createQueue();
@@ -114,7 +119,7 @@ int bfs(struct graph* Graph, int startVertex, int t) {
     BFS_path[count] = 0;
 
     printf("Count : %d  Vertex: %d  Capacity: %d\n", count, BFS_path[0], 0);
-    int path[MAX_NODE]; path[0] = 0;
+    int path[] = {}; path[0] = 0;
     int pathCounter = 0;
     int lastVertex = 0;
 
@@ -138,7 +143,7 @@ int bfs(struct graph* Graph, int startVertex, int t) {
                 Graph->visited[adjVertex] = 1;
                 enqueue(q, adjVertex);
                 count++;
-                BFS_path[count] = adjVertex;
+                //BFS_path[count] = adjVertex;
                 
                 printf("Count : %d  Curr_Vertex: %d  Capacity: %d\n", count, adjVertex, temp->capacity);
             }
@@ -172,9 +177,9 @@ int bfs(struct graph* Graph, int startVertex, int t) {
 
     printf("Path Reversed\n");
 */
-    for (int i = 0; i < sizeof(path); i++) {
+    for (int i = 0; i < pathCounter; i++) {
         int temp = path[i];
-        flowCapacity = Graph->adjlists[temp]->capacity;
+        flowCapacity += Graph->adjlists[temp]->capacity;
     }
 
     printf("Flow calculated. Returning..\n");
