@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
-//#include "queue.h"
+#include "queue.h"
 #include "graph.h"
 #include "c-vector-master/vec.h"
 
@@ -18,7 +18,7 @@ int currentPathCapacity[VERTICES];
 
 typedef struct vector_array {
     int* to;
-} vectorArr;
+} vectorArr[VERTICES];
 
 
 typedef struct graph2 {
@@ -75,16 +75,16 @@ Stack* createStack(int sizeOfstack) {
     return stack;
 }
 
-int iskFull(Stack *stack) {
+int iskFullStack(Stack *stack) {
     return stack->top == stack->sizeOfstack - 1;
 }
 
-int isEmpty(Stack *stack) {
+int isEmptyStack(Stack *stack) {
     return stack->top == -1;
 }
 
 void push(Stack *stack, int item) {
-    if (iskFull(stack)) {
+    if (iskFullStack(stack)) {
         return;
     }
     stack->array[++stack->top] = item;
@@ -92,7 +92,7 @@ void push(Stack *stack, int item) {
 }
 
 int pop(Stack *stack) {
-    if (isEmpty(stack)) {
+    if (isEmptyStack(stack)) {
         return INT_MIN;
     }
     return stack->array[stack->top--];
@@ -100,7 +100,7 @@ int pop(Stack *stack) {
 
 int peek(Stack* stack)
 {
-    if (isEmpty(stack))
+    if (isEmptyStack(stack))
         return INT_MIN;
     return stack->array[stack->top];
 }
@@ -132,8 +132,8 @@ void init_graph(int graph[][VERTICES]) {
 }
 
 void add_edge(vectorArr *graph, int vertex1, int vertex2, int weight) {
-    vector_add(&graph[vertex1].to, vertex2);
-    vector_add(&graph[vertex2].to, vertex1);
+    vector_add(&graph[vertex1]->to, vertex2);
+    vector_add(&graph[vertex2]->to, vertex1);
     capacities[vertex1][vertex2] = weight;
 }
 
@@ -149,7 +149,7 @@ void print_adjMatrix(int graph[][VERTICES]) {
 int main() {
     vectorArr graph[VERTICES];
     for (int i = 0; i < VERTICES; i++) {
-        graph[i].to = vector_create();
+        graph[i]->to = vector_create();
     }
 
     //vector_add(&graph[0].to, 2);
@@ -233,7 +233,7 @@ int edmonds_karp_algo(Graph* graph, int s, int t) {
 }
 */
 
-int BFS(vectorArr *graph, Stack *s, int startVertex, int endNode) {
+int BFS(vectorArr *graph, Queue *q, int startVertex, int endNode) {
 
     //memset(parentsList, -1, sizeof(parentsList));
     //memset(currentPathCapacity, 0, sizeof(currentPathCapacity));
@@ -242,29 +242,34 @@ int BFS(vectorArr *graph, Stack *s, int startVertex, int endNode) {
         parentsList[i] = -1;
         currentPathCapacity[i] = 0;
 
-        printf("[%d]parentsList: %d\n", i, parentsList[i]);
-        printf("[%d]currentPathCapacity: %d\n", i, currentPathCapacity[i]);
+        //printf("[%d]parentsList: %d\n", i, parentsList[i]);
+        //printf("[%d]currentPathCapacity: %d\n", i, currentPathCapacity[i]);
     }
 
     //Stack* s = createStack(VERTICES);
-    push(s, startVertex);
+    //push(s, startVertex);
+    enqueue(q, startVertex);
 
     parentsList[startVertex] = -2;
 
     currentPathCapacity[startVertex] = 999;
 
-    while (!isEmpty(s)) {
-        int currentVertex = s->top;
-        pop(s);
+    while (!isEmpty(q)) {
+        int currentVertex = q->front;
+        //pop(s);
+        dequeue(q);
 
         printf("TEST-1\n");
 
-        printf("vector_size(graph->to[currentVertex]: %ld\n", vector_size(graph[currentVertex].to));
-        for (int i = 0; i < vector_size(graph[currentVertex].to); i++) {
+        printf("vector_size(graph->to[currentVertex]: %ld\n", vector_size(graph[currentVertex]->to));
+        for (int i = 0; i < vector_size(graph[currentVertex]->to); i++) {
 
             printf("TEST-2\n");
 
-            int to = graph[currentVertex].to[i];
+            int to = graph[currentVertex]->to[i];
+
+            enqueue(q, to);
+
             printf("currentVertex: %d\n", currentVertex);
             printf("TO-1: %d\n", to);
             printf("parentsList[to]: %d\n", parentsList[to]);
@@ -282,6 +287,8 @@ int BFS(vectorArr *graph, Stack *s, int startVertex, int endNode) {
                     printf("TEST 4.5 Pre-Beta\n");
                     currentPathCapacity[to] = min(currentPathCapacity[currentVertex], capacities[currentVertex][to] - flowPassed[currentVertex][to]);
 
+                    printf("currentPathCapacity: %d\n", currentPathCapacity[to]);
+                    
                     printf("TO-2: %d\n\n", to);
                     if (to == endNode) {
 
@@ -289,7 +296,8 @@ int BFS(vectorArr *graph, Stack *s, int startVertex, int endNode) {
 
                         return currentPathCapacity[endNode];
                     }
-                    push(s, to);
+                    //push(s, to);
+                    //enqueue(q, to);
                 }
             }
         }
@@ -299,21 +307,22 @@ int BFS(vectorArr *graph, Stack *s, int startVertex, int endNode) {
 
 
 int edmondsKarp(vectorArr *graph, int startVertex, int endNode) {
-
-    Stack* s = createStack(VERTICES);
+    Queue* q = createQueue();
+    //Stack* s = createStack(VERTICES);
 
    int maxFlow = 0;
    while(1) { 
-      int flow = BFS(graph, s, startVertex, endNode);
+      int flow = BFS(graph, q, startVertex, endNode);
       printf("FLOW: %d\n", flow);
-      if (flow == 0)
-      {
+
+      if (flow == 0) {
          break;
       }
+
       maxFlow += flow;
       int currNode = endNode;
-      while(currNode != startVertex)
-      {
+
+      while(currNode != startVertex) {
          int prevNode = parentsList[currNode];
          printf("prevNode: %d\n", prevNode);
          flowPassed[prevNode][currNode] += flow;
@@ -321,5 +330,5 @@ int edmondsKarp(vectorArr *graph, int startVertex, int endNode) {
          currNode = prevNode;
       }
    }
-return maxFlow;
+    return maxFlow;
 }
