@@ -90,6 +90,10 @@ int main(void) {
     
     printf("%d\n", bfsRes);
 
+    bfsRes = bfs(Graph, 0, 0);
+    
+    printf("%d\n", bfsRes);
+
     return 0;
 }
 
@@ -135,7 +139,7 @@ int bfs(struct graph* Graph, int startVertex, int firstRunToken) {
 
         while (temp) {
             int adjVertex = temp->vertexNum;
-            
+
             if (Graph->adjlists[adjVertex]->deadNodeToken == 1 && firstRunToken == 0) { //Have the next run restart if it goes the same road. Then block the road
                 printf("-------------DEAD NOTE FOUND-------------\n");
                 cleanVisitedArray(Graph);
@@ -151,7 +155,7 @@ int bfs(struct graph* Graph, int startVertex, int firstRunToken) {
             }
 
             if (adjVertex != 0 && Graph->visited[adjVertex] == 0) {
-                if (adjVertex > lastVertex + 1) { //Might need a new conditon to properly make the path
+                if (adjVertex > lastVertex) { //Might need a new conditon to properly make the path. Only really works for the first iteration
                     printf("--- adjVertex: %d -- lastVertex: %d ---\n", adjVertex, lastVertex);
                     pathCounter++;
                     path[pathCounter] = adjVertex;
