@@ -76,14 +76,20 @@ int main(void) {
 
     printf("BFS begins\n");
 
-    int bfsRes = bfs(Graph, 0);
+    int bfsRes = bfs(Graph, 0, 1);
 
     printf("%d\n", bfsRes);
 
     cleanVisitedArray(Graph);
 
-    bfsRes = bfs(Graph, 0);
+    bfsRes = bfs(Graph, 0, 0);
+
     printf("%d\n", bfsRes);
+
+    bfsRes = bfs(Graph, 0, 0);
+    
+    printf("%d\n", bfsRes);
+
     return 0;
 }
 
@@ -109,7 +115,7 @@ struct node* createNode(int v, int c) {
     return newNode;
 }
 
-int bfs(struct graph* Graph, int startVertex) {
+int bfs(struct graph* Graph, int startVertex, int firstRunToken) {
     
     int bottleneckValue = 0;
     struct queue* q = createQueue();
@@ -125,12 +131,12 @@ int bfs(struct graph* Graph, int startVertex) {
 
     while (!isEmpty(q)) {
         int currentVertex = dequeue(q);
-        struct node* temp = temp = Graph->adjlists[currentVertex];
+        struct node* temp = Graph->adjlists[currentVertex];
 
         while (temp) {
             int adjVertex = temp->vertexNum;
             
-            if (Graph->adjlists[adjVertex]->deadNodeToken == 1) { //Stop this from running on the first run, and have the next run restart if it goes the same road. Then block the road
+            if (Graph->adjlists[adjVertex]->deadNodeToken == 1 && firstRunToken == 0) { //Have the next run restart if it goes the same road. Then block the road
                 printf("-------------DEAD NOTE FOUND-------------\n");
                 cleanVisitedArray(Graph);
                 Graph->visited[adjVertex] = 1;
@@ -145,7 +151,7 @@ int bfs(struct graph* Graph, int startVertex) {
             }
 
             if (adjVertex != 0 && Graph->visited[adjVertex] == 0) {
-                if (adjVertex > lastVertex + 1) {
+                if (adjVertex > lastVertex + 1) { //Might need a new conditon to properly make the path
                     printf("--- adjVertex: %d -- lastVertex: %d ---\n", adjVertex, lastVertex);
                     pathCounter++;
                     path[pathCounter] = adjVertex;
