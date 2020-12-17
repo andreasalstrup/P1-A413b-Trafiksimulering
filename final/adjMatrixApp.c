@@ -5,7 +5,7 @@
 //#include "queue.h"
 #include "graph.h"
 
-#define VERTICES 10
+#define VERTICES 6
 
 int capacities[VERTICES][VERTICES];
 
@@ -14,6 +14,47 @@ int flowPassed[VERTICES][VERTICES];
 int parentsList[VERTICES];
 
 int currentPathCapacity[VERTICES];
+
+
+
+typedef struct graph2 {
+    int v;
+    int e;
+    int **adj;
+} Graph2;
+
+void allocate_mem(int*** arr, int n, int m) {
+    *arr = (int**) malloc(n*sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        (*arr)[i] = (int*) malloc(m*sizeof(int));
+    }
+}
+
+Graph2* adjMatrixOfGraph() {
+    int u,v,i;
+
+    Graph2 *G = malloc(10*6*sizeof(Graph2));
+    allocate_mem(&G->adj, 10, 10);
+    
+    G->e = 10;
+    G->v = 10;
+
+    for (u = 0; u < G->v; u++) {
+        for (v = 0; v < G->v; v++) {
+            G->adj[u][v] = 0;
+        }
+    }
+
+    for (int i = 0; i < G->v; i++) {
+        for (int j = 0; j < G->v; j++) {
+            printf("%2d ", G->adj[i][j]);
+        }
+        printf("\n");
+    }
+
+    printf("Adj: %d\n", G->adj[1][0]);
+}
+
 
 
 typedef struct stack {
@@ -61,7 +102,7 @@ int peek(Stack* stack)
 }
 
 int BFS(int graph[][VERTICES], int startVertex, int endNode);
-//int edmondsKarp(int graph[][VERTICES], int startVertex, int endNode); // COPY PASTE
+int edmondsKarp(int graph[][VERTICES], int startVertex, int endNode); // COPY PASTE
 //int edmonds_karp_algo(Graph* graph, int s, int t);
 
 int min(int num1, int num2) {
@@ -72,13 +113,13 @@ void init_graph(int graph[][VERTICES]) {
     for (int i = 0; i < VERTICES; i++) {
         for (int j = 0; j < VERTICES; j++) {
             graph[i][j] = 0;
+            flowPassed[i][j] = 0;
         }
 
     }
-    //for (int i = 0; i < VERTICES * VERTICES; i++) {
+    //for (int i = 0; i < VERTICES; i++) {
         //parentsList[i] = -1;
         //currentPathCapacity[i] = 0;
-        //flowPassed[i][VERTICES] = 0;
 
         //printf("[%d]parentsList: %d\n", i, parentsList[i]);
         //printf("[%d]currentPathCapacity: %d\n", i, currentPathCapacity[i]);
@@ -131,8 +172,11 @@ int main() {
 
     print_adjMatrix(adjMatrix);
 
-    printf("BFS: %d\n", BFS(adjMatrix, 0, 5));
-    //printf("EDK: %d\n", edmondsKarp(adjMatrix, 0, 5));
+    //printf("BFS: %d\n", BFS(adjMatrix, 0, 5));
+
+    //adjMatrixOfGraph();
+
+    printf("EDK: %d\n", edmondsKarp(adjMatrix, 0, 5));
 
     /*
     Graph* graph = createGraph(4);
@@ -269,21 +313,25 @@ int BFS(int graph[][VERTICES], int startVertex, int endNode) {
 
             printf("TEST-2\n");
 
-            int to = graph[currentVertex][i];
-            printf("TO: %d\n", to);
+            int to = i;
+            
+            printf("parentsList[to]: %d\n", parentsList[to]);
 
             if (parentsList[to] == -1) {
                 
                 printf("TEST-3\n");
 
-                if (capacities[currentVertex][to] - flowPassed[currentVertex][to] > 0) {               // Skal fixes
+                printf("graph[currentVertex][to]: %d\n", graph[currentVertex][to]);
+                if (graph[currentVertex][to] - flowPassed[currentVertex][to] > 0) {               // Skal fixes
 
                     printf("TEST-4\n");
 
                     parentsList[to] = currentVertex;
-                    currentPathCapacity[to] = min(currentPathCapacity[currentVertex], graph[currentVertex][to] - graph[currentVertex][to]);
+                    printf("TEST 4.5 Pre-Beta\n");
+                    currentPathCapacity[to] = min(currentPathCapacity[currentVertex], graph[currentVertex][to] - flowPassed[currentVertex][to]);
 
-                    if (to == endNode) {
+                    printf("TO: %d\n\n", to);
+                    if (to == 5) {
 
                         printf("TEST-5\n");
 
@@ -297,7 +345,7 @@ int BFS(int graph[][VERTICES], int startVertex, int endNode) {
     return 0;
 }
 
-/*
+
 int edmondsKarp(int graph[][VERTICES], int startVertex, int endNode)
 {
    int maxFlow = 0;
@@ -320,4 +368,3 @@ int edmondsKarp(int graph[][VERTICES], int startVertex, int endNode)
    }
 return maxFlow;
 }
-*/
