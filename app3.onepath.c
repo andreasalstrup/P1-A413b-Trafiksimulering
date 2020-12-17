@@ -46,37 +46,104 @@ void cleanVisitedArray();
 
 int main(void) {
 
-    struct graph* Graph = createGraph(MAX_NODE); 
+    struct graph* Graph = createGraph(MAX_NODE);
     struct graph* Graph1 = createGraph(MAX_NODE);
+    struct graph* Graph2 = createGraph(MAX_NODE);
 
-    add_node(Graph, 0, 1, 16);
-    add_node(Graph, 1, 2, 10);
-    add_node(Graph, 1, 3, 12);
-    add_node(Graph, 3, 5, 20);
-    //Flow should be 12 here
+    struct graph* Graphx = createGraph(MAX_NODE);
+    struct graph* Graphx1 = createGraph(MAX_NODE);
+    struct graph* Graphx2 = createGraph(MAX_NODE);
+    struct graph* Graphx3 = createGraph(MAX_NODE);
 
-    add_node(Graph1, 0, 2, 13);
-    add_node(Graph1, 2, 4, 14);
-    add_node(Graph1, 4, 5, 4);
-    //Flow should be 4 here
+    //Uden Plusbus
+    //S1 route 1
+    add_node(Graph, 0, 1, 480);
+    add_node(Graph, 1, 2, 1760);
+    add_node(Graph, 2, 3, 2800);
+
+    //S1 route 2
+    add_node(Graph1, 0, 1, 640);
+    add_node(Graph1, 1, 2, 3680);
+    add_node(Graph1, 2, 3, 2640);
+    add_node(Graph1, 3, 4, 1680);
+    add_node(Graph1, 4, 5, 1280);
+    add_node(Graph1, 5, 6, 2320);
+
+    //S2 route 1
+    add_node(Graph2, 0, 1, 2720);
+    add_node(Graph2, 1, 2, 3040);
+    add_node(Graph2, 2, 3, 2000);
+    add_node(Graph2, 3, 4, 1040);
+    add_node(Graph2, 4, 5, 640);
+    add_node(Graph2, 5, 6, 1680);
+    //Out of Capacity on route to sink
 
     printf("BFS begins\n");
-
     int totalFlow = 0;
 
     int bfsRes = bfs(Graph, 0, 1);
     printf("%d\n", bfsRes);
-    cleanVisitedArray(Graph);
-
     totalFlow += bfsRes;
 
     bfsRes = bfs(Graph1, 0, 0);
     printf("%d\n", bfsRes);
-
     totalFlow += bfsRes;
 
-    printf("Max Flow: %d\n", totalFlow);
-    //Total max should be 16
+    bfsRes = bfs(Graph2, 0, 1);
+    printf("%d\n", bfsRes);
+    totalFlow += bfsRes;
+
+    printf("Max Flow without Plusbus: %d\n\n", totalFlow);
+
+    //S1 route 1
+    add_node(Graphx, 0, 1, 480);
+    add_node(Graphx, 1, 2, 4000);
+    add_node(Graphx, 2, 3, 4000);
+
+    //S1 route 2
+    add_node(Graphx1, 0, 1, 640);
+    add_node(Graphx1, 1, 2, 4000);
+    add_node(Graphx1, 2, 3, 4000);
+    add_node(Graphx1, 3, 4, 4000);
+    add_node(Graphx1, 4, 5, 3520);
+    add_node(Graphx1, 5, 6, 3520);
+
+    //S2 route 1
+    add_node(Graphx2, 0, 1, 2720);
+    add_node(Graphx2, 1, 2, 3360);
+    add_node(Graphx2, 2, 3, 3360);
+    add_node(Graphx2, 3, 4, 3360);
+    add_node(Graphx2, 4, 5, 2880);
+    add_node(Graphx2, 5, 6, 2880);
+
+    add_node(Graphx3, 0, 1, 720);
+    add_node(Graphx3, 1, 2, 1520);
+    add_node(Graphx3, 2, 3, 640);
+    add_node(Graphx3, 3, 4, 640);
+    add_node(Graphx3, 4, 5, 160);
+    add_node(Graphx3, 5, 6, 160);
+    //Out of Capacity on route to sink
+
+    printf("BFS begins w/ Plusbus\n");
+    totalFlow = 0;
+
+    bfsRes = bfs(Graphx, 0, 1);
+    printf("%d\n", bfsRes);
+    totalFlow += bfsRes;
+
+    bfsRes = bfs(Graphx1, 0, 0);
+    printf("%d\n", bfsRes);
+    totalFlow += bfsRes;
+
+    bfsRes = bfs(Graphx2, 0, 0);
+    printf("%d\n", bfsRes);
+    totalFlow += bfsRes;
+
+    bfsRes = bfs(Graphx3, 0, 0);
+    printf("%d\n", bfsRes);
+    totalFlow += bfsRes;
+
+    printf("Max Flow with Plusbus: %d\n", totalFlow);
 
     return 0;
 }
@@ -126,14 +193,13 @@ int bfs(struct graph* Graph, int startVertex, int firstRunToken) {
 
             if (adjVertex != 0 && Graph->visited[adjVertex] == 0) {
                 if (adjVertex > lastVertex) {
-                    printf("--- adjVertex: %d -- lastVertex: %d ---\n", adjVertex, lastVertex);
                     pathCounter++;
                     path[pathCounter] = adjVertex;
                 }
                 lastVertex = adjVertex;
             }
 
-            if (Graph->visited[adjVertex] == 0 && Graph->adjlists[adjVertex]->capacity != 0) {
+            if (Graph->visited[adjVertex] == 0) {
                 Graph->visited[adjVertex] = 1;
                 enqueue(q, adjVertex);
                 printf("Curr_Vertex: %d  Capacity: %d\n", adjVertex, temp->capacity);
@@ -152,13 +218,7 @@ int bfs(struct graph* Graph, int startVertex, int firstRunToken) {
         bottleneckValue = min(Graph->adjlists[temp]->capacity, bottleneckValue);
     }
 
-    for (int i = 0; i < pathCounter; i++) {
-        int temp = path[i];
-        Graph->adjlists[temp]->capacity -= bottleneckValue;
-        printf("New Capacity: %d  For Vertex: %d\n", Graph->adjlists[temp]->capacity, temp);
-    }
-
-    printf("Bottleneck calculated and Capacity adjusted. Returning..\n");
+    printf("Bottleneck calculated. Returning..\n");
 
     return bottleneckValue;
 }
@@ -188,7 +248,6 @@ struct graph* createGraph(int vertices) {
 
     return graph;
 }
-
 
 struct queue* createQueue() {
     struct queue* q = malloc(sizeof(struct queue));
@@ -229,35 +288,8 @@ int dequeue(struct queue* q) {
         node = q->nodes[q->front];
         q->front++;
         if (q->front > q->rear) {
-            //printf("Resetting queue\n");
             q->front = q->rear = -1;
         }
     }
     return node;
 }
-
-/*
-int edmonds_karp_algo(int s, int t) {
-    node *p = adjlist[t]->head;
-    int currentNode, prevNode;
-    int flowPassed[MAX_NODE][MAX_NODE];
-    int flow;
-    int maxFlow = 0;
-    
-    while (1) {
-        //flow = bfs(s, t); //To be researched
-        if (flow == 0) break;
-
-        maxFlow += flow;
-        currentNode = t;
-
-        while (currentNode != s) {
-            prevNode = p[currentNode - 1].vertexNum;
-            flowPassed[prevNode][currentNode] += flow;
-            flowPassed[currentNode][prevNode] -= flow;
-            currentNode = prevNode;
-        }
-    }
-    return maxFlow;
-}
-*/
