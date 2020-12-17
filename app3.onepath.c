@@ -49,9 +49,6 @@ int main(void) {
     struct graph* Graph = createGraph(MAX_NODE); 
     struct graph* Graph1 = createGraph(MAX_NODE);
 
-    //Add only 1 path for each run of BFS. Pro: We can search all paths. Con: We need to know each path and manually input it
-
- // /*
     add_node(Graph, 0, 1, 16);
     add_node(Graph, 1, 2, 10);
     add_node(Graph, 1, 3, 12);
@@ -62,24 +59,6 @@ int main(void) {
     add_node(Graph1, 2, 4, 14);
     add_node(Graph1, 4, 5, 4);
     //Flow should be 4 here
-    
- // */
-  /*
-    add_node(Graph, 0, 1, 5);   //3rd
-    add_node(Graph, 0, 2, 10);  //2nd
-    add_node(Graph, 0, 3, 15);  //1st //Source
-
-    add_node(Graph, 1, 4, 10);  //6th
-    add_node(Graph, 1, 5, 5);   
-    add_node(Graph, 2, 5, 10);  //5th
-    add_node(Graph, 3, 6, 5);   //4th //Mid
-    
-    add_node(Graph, 4, 7, 5);
-    add_node(Graph, 5, 7, 15);
-    add_node(Graph, 6, 7, 10);  //7th //Sink
-
-    add_node(Graph, 7, 9, 10); //8th //Testsink
-  */
 
     printf("BFS begins\n");
 
