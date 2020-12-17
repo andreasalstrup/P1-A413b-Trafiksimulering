@@ -13,6 +13,7 @@ typedef struct node {
     struct node *next;                          // Holder adressen til næste node (vertex)
     int capacity;                               // Kapaciteten fra knudepunktet
     int deadNodeToken;
+    int visitedOnce;
 } node;
 
 /* Queue struct */
@@ -128,16 +129,19 @@ int bfs(struct graph* Graph, int startVertex) {
 
         while (temp) {
             int adjVertex = temp->vertexNum;
-
-            if (Graph->adjlists[adjVertex]->deadNodeToken == 1) {
-                //cleanVisitedArray(Graph);
-                //Graph->visited[adjVertex] = 1;
-                //bfs(Graph, 0);
-                pathCounter = 0;
-                //Empty Path array
+            
+            if (Graph->adjlists[adjVertex]->deadNodeToken == 1) { //Stop this from running on the first run, and have the next run restart if it goes the same road. Then block the road
                 printf("-------------DEAD NOTE FOUND-------------\n");
-                break;
-                break;
+                cleanVisitedArray(Graph);
+                Graph->visited[adjVertex] = 1;
+                //Empties Path Array
+                for (int i = 0; i > pathCounter; i++){
+                    int tempClear = path[i];
+                    Graph->adjlists[tempClear]->visitedOnce = 1;
+                    path[i] = 0;
+                }
+                pathCounter = 0;
+                return 0;
             }
 
             if (adjVertex != 0 && Graph->visited[adjVertex] == 0) {
@@ -155,8 +159,11 @@ int bfs(struct graph* Graph, int startVertex) {
 
             if (Graph->visited[adjVertex] == 0 && Graph->adjlists[adjVertex]->capacity != 0) {
                 Graph->visited[adjVertex] = 1;
-                enqueue(q, adjVertex);
-                printf("Curr_Vertex: %d  Capacity: %d\n", adjVertex, temp->capacity);
+                if (Graph->adjlists[adjVertex]->visitedOnce == 0) {
+                    enqueue(q, adjVertex);
+                    printf("Curr_Vertex: %d  Capacity: %d\n", adjVertex, temp->capacity);
+                }
+                
             }
             temp = temp->next;
         }
