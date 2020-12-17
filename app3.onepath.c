@@ -4,7 +4,7 @@
 //DEBUG TOOL: valgrind --tool=memcheck --leak-check=yes -v --leak-check=full --show-reachable=yes ./test
 
 #define MAX_NODE 6
-#define CAPACITY 40                             //Placeholder value - Amount of nodes BFS has to run through
+#define CAPACITY 40                             //Placeholder value - Amount of nodes BFS has to run through  
 #define MAX_PATH 20
 
 /* Holder et hjørne */
@@ -46,16 +46,23 @@ void cleanVisitedArray();
 
 int main(void) {
 
-    struct graph* Graph = createGraph(MAX_NODE); //Add only 1 path for each run of BFS. Pro: We can search all paths. Con: We need to know each path and manually input it
+    struct graph* Graph = createGraph(MAX_NODE); 
+    struct graph* Graph1 = createGraph(MAX_NODE);
+
+    //Add only 1 path for each run of BFS. Pro: We can search all paths. Con: We need to know each path and manually input it
 
  // /*
     add_node(Graph, 0, 1, 16);
-    add_node(Graph, 0, 2, 13);
     add_node(Graph, 1, 2, 10);
     add_node(Graph, 1, 3, 12);
-    add_node(Graph, 2, 4, 14);
     add_node(Graph, 3, 5, 20);
-    add_node(Graph, 4, 5, 4);
+    //Flow should be 12 here
+
+    add_node(Graph1, 0, 2, 13);
+    add_node(Graph1, 2, 4, 14);
+    add_node(Graph1, 4, 5, 4);
+    //Flow should be 4 here
+    
  // */
   /*
     add_node(Graph, 0, 1, 5);   //3rd
@@ -76,23 +83,21 @@ int main(void) {
 
     printf("BFS begins\n");
 
+    int totalFlow = 0;
+
     int bfsRes = bfs(Graph, 0, 1);
-
     printf("%d\n", bfsRes);
-
     cleanVisitedArray(Graph);
 
-    bfsRes = bfs(Graph, 0, 0);
+    totalFlow += bfsRes;
 
+    bfsRes = bfs(Graph1, 0, 0);
     printf("%d\n", bfsRes);
 
-    bfsRes = bfs(Graph, 0, 0);
-    
-    printf("%d\n", bfsRes);
+    totalFlow += bfsRes;
 
-    bfsRes = bfs(Graph, 0, 0);
-    
-    printf("%d\n", bfsRes);
+    printf("Max Flow: %d\n", totalFlow);
+    //Total max should be 16
 
     return 0;
 }
@@ -140,22 +145,8 @@ int bfs(struct graph* Graph, int startVertex, int firstRunToken) {
         while (temp) {
             int adjVertex = temp->vertexNum;
 
-            if (Graph->adjlists[adjVertex]->deadNodeToken == 1 && firstRunToken == 0) { //Have the next run restart if it goes the same road. Then block the road
-                printf("-------------DEAD NOTE FOUND-------------\n");
-                cleanVisitedArray(Graph);
-                Graph->visited[adjVertex] = 1;
-                //Empties Path Array
-                for (int i = 0; i > pathCounter; i++){
-                    int tempClear = path[i];
-                    Graph->adjlists[tempClear]->visitedOnce = 1;
-                    path[i] = 0;
-                }
-                pathCounter = 0;
-                return 0;
-            }
-
             if (adjVertex != 0 && Graph->visited[adjVertex] == 0) {
-                if (adjVertex > lastVertex) { //Might need a new conditon to properly make the path. Only really works for the first iteration
+                if (adjVertex > lastVertex) {
                     printf("--- adjVertex: %d -- lastVertex: %d ---\n", adjVertex, lastVertex);
                     pathCounter++;
                     path[pathCounter] = adjVertex;
@@ -163,17 +154,10 @@ int bfs(struct graph* Graph, int startVertex, int firstRunToken) {
                 lastVertex = adjVertex;
             }
 
-            if (Graph->adjlists[adjVertex]->capacity == 0) {
-                Graph->adjlists[adjVertex]->deadNodeToken = 1;
-            }
-
             if (Graph->visited[adjVertex] == 0 && Graph->adjlists[adjVertex]->capacity != 0) {
                 Graph->visited[adjVertex] = 1;
-                if (Graph->adjlists[adjVertex]->visitedOnce == 0) {
-                    enqueue(q, adjVertex);
-                    printf("Curr_Vertex: %d  Capacity: %d\n", adjVertex, temp->capacity);
-                }
-                
+                enqueue(q, adjVertex);
+                printf("Curr_Vertex: %d  Capacity: %d\n", adjVertex, temp->capacity);
             }
             temp = temp->next;
         }
