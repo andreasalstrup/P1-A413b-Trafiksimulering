@@ -5,13 +5,16 @@
 //#include "queue.h"
 #include "graph.h"
 
-#define VERTICES 6
+#define VERTICES 10
 
-int parentsList[VERTICES * VERTICES];
+int capacities[VERTICES][VERTICES];
+
+int flowPassed[VERTICES][VERTICES];
+
+int parentsList[VERTICES];
+
 int currentPathCapacity[VERTICES];
 
-int c[10][10];
-int flowPassed[10][10];
 
 typedef struct stack {
     int top;
@@ -72,13 +75,14 @@ void init_graph(int graph[][VERTICES]) {
         }
 
     }
-    for (int i = 0; i < VERTICES * VERTICES; i++) {
-        parentsList[i] = -1;
+    //for (int i = 0; i < VERTICES * VERTICES; i++) {
+        //parentsList[i] = -1;
         //currentPathCapacity[i] = 0;
+        //flowPassed[i][VERTICES] = 0;
 
         //printf("[%d]parentsList: %d\n", i, parentsList[i]);
         //printf("[%d]currentPathCapacity: %d\n", i, currentPathCapacity[i]);
-    }
+    //}
 
 }
 
@@ -102,7 +106,7 @@ int main() {
     
     init_graph(adjMatrix);
     // Eksempler
-
+    /*
     add_edge(adjMatrix, 0, 1, 16);
     add_edge(adjMatrix, 0, 2, 13);
     add_edge(adjMatrix, 1, 2, 10);
@@ -113,6 +117,17 @@ int main() {
     add_edge(adjMatrix, 4, 3, 7);
     add_edge(adjMatrix, 3, 5, 20);
     add_edge(adjMatrix, 4, 5, 4);
+    */
+    add_edge(adjMatrix, 0, 1, 16);
+    add_edge(adjMatrix, 0, 2, 13);
+    add_edge(adjMatrix, 1, 2, 10);
+    add_edge(adjMatrix, 2, 1, 6);
+    add_edge(adjMatrix, 1, 3, 14);
+    add_edge(adjMatrix, 3, 2, 7);
+    add_edge(adjMatrix, 2, 4, 13);
+    add_edge(adjMatrix, 4, 3, 8);
+    add_edge(adjMatrix, 4, 5, 6);
+    add_edge(adjMatrix, 3, 5, 18); // max flow skal være 24 // source: 0 sink: 5
 
     print_adjMatrix(adjMatrix);
 
@@ -232,69 +247,48 @@ int edmonds_karp_algo(Graph* graph, int s, int t) {
 */
 
 int BFS(int graph[][VERTICES], int startVertex, int endNode) {
-    //Queue* q = createQueue();
 
-    //memset(parentsList, -1, sizeof(parentsList));
+    memset(parentsList, -1, sizeof(parentsList));
     memset(currentPathCapacity, 0, sizeof(currentPathCapacity));
-
-    /*
-    for (int i = 0; i < sizeof(parentsList); i++) {
-        printf("parentsList[%d]: %d\n", i, parentsList[i]);
-    }
-    */
 
     Stack* s = createStack(VERTICES);
     push(s, startVertex);
 
-    printf("PEEK: %d\n", peek(s));
-
-    //int parentsList[VERTICES];
-    //int currentPathCapacity[VERTICES];
-
-
     parentsList[startVertex] = -2;
-    printf("-----------parentsList[SV:%d]: %d------------\n",startVertex, parentsList[startVertex]);
 
-    printf("StartVetex: %d\n", startVertex);
     currentPathCapacity[startVertex] = 999;
 
-    //enqueue(q, startVertex);
-
-    printf("PEEK: %d\n", peek(s));
-
-    //printQueue(q);
     while (!isEmpty(s)) {
-
-        //printQueue(q);
-        //int currentVertex = q->front;
-        //dequeue(q);
-
-        int currentVertex = peek(s);
-        printf("currentVertex: %d\n", currentVertex);
+        int currentVertex = s->top;
         pop(s);
 
+        printf("TEST-1\n");
+
         int row = sizeof(graph[0]) / sizeof(graph[0][0]);
-        for (int i = 0; i < row; i++) {
-            printf("PEEK: %d\n", peek(s));
+        for (int i = 0; i < VERTICES; i++) {
+
+            printf("TEST-2\n");
 
             int to = graph[currentVertex][i];
-
-            printf("graph[currentVertex][%d]: %d\n", i, graph[currentVertex][i]);
-            printf("parentsList[to:%d]: %d\n",to, parentsList[to]);
+            printf("TO: %d\n", to);
 
             if (parentsList[to] == -1) {
-                printf("TEST-1\n");
-                print_adjMatrix(graph);
+                
+                printf("TEST-3\n");
 
-                if (c[currentVertex][to] - flowPassed[currentVertex][to] > 0) {               // Skal fixes
-                    printf("TEST-2\n");
+                if (capacities[currentVertex][to] - flowPassed[currentVertex][to] > 0) {               // Skal fixes
+
+                    printf("TEST-4\n");
+
                     parentsList[to] = currentVertex;
                     currentPathCapacity[to] = min(currentPathCapacity[currentVertex], graph[currentVertex][to] - graph[currentVertex][to]);
 
                     if (to == endNode) {
+
+                        printf("TEST-5\n");
+
                         return currentPathCapacity[endNode];
                     }
-                    //enqueue(q, to);
                     push(s, to);
                 }
             }
