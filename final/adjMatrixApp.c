@@ -4,8 +4,9 @@
 #include <string.h>
 //#include "queue.h"
 #include "graph.h"
+#include "c-vector-master/vec.h"
 
-#define VERTICES 6
+#define VERTICES 10
 
 int capacities[VERTICES][VERTICES];
 
@@ -15,6 +16,9 @@ int parentsList[VERTICES];
 
 int currentPathCapacity[VERTICES];
 
+typedef struct vector_array {
+    int* to;
+} vectorArr;
 
 
 typedef struct graph2 {
@@ -101,8 +105,8 @@ int peek(Stack* stack)
     return stack->array[stack->top];
 }
 
-int BFS(int graph[][VERTICES], int startVertex, int endNode);
-int edmondsKarp(int graph[][VERTICES], int startVertex, int endNode); // COPY PASTE
+int BFS();
+int edmondsKarp(); // COPY PASTE
 //int edmonds_karp_algo(Graph* graph, int s, int t);
 
 int min(int num1, int num2) {
@@ -127,8 +131,10 @@ void init_graph(int graph[][VERTICES]) {
 
 }
 
-void add_edge(int graph[][VERTICES], int vertex1, int vertex2, int weight) {
-    graph[vertex1][vertex2] = weight;
+void add_edge(vectorArr *graph, int vertex1, int vertex2, int weight) {
+    vector_add(&graph[vertex1].to, vertex2);
+    vector_add(&graph[vertex2].to, vertex1);
+    capacities[vertex1][vertex2] = weight;
 }
 
 void print_adjMatrix(int graph[][VERTICES]) {
@@ -141,98 +147,35 @@ void print_adjMatrix(int graph[][VERTICES]) {
 }
 
 int main() {
-    int adjMatrix[VERTICES][VERTICES];
-    int parentsList[VERTICES];
-    int currentPathCapacity[VERTICES];
-    
-    init_graph(adjMatrix);
-    // Eksempler
-    /*
-    add_edge(adjMatrix, 0, 1, 16);
-    add_edge(adjMatrix, 0, 2, 13);
-    add_edge(adjMatrix, 1, 2, 10);
-    add_edge(adjMatrix, 2, 1, 4);
-    add_edge(adjMatrix, 1, 3, 12);
-    add_edge(adjMatrix, 2, 4, 14);
-    add_edge(adjMatrix, 3, 2, 9);
-    add_edge(adjMatrix, 4, 3, 7);
-    add_edge(adjMatrix, 3, 5, 20);
-    add_edge(adjMatrix, 4, 5, 4);
-    */
-    add_edge(adjMatrix, 0, 1, 16);
-    add_edge(adjMatrix, 0, 2, 13);
-    add_edge(adjMatrix, 1, 2, 10);
-    add_edge(adjMatrix, 2, 1, 6);
-    add_edge(adjMatrix, 1, 3, 14);
-    add_edge(adjMatrix, 3, 2, 7);
-    add_edge(adjMatrix, 2, 4, 13);
-    add_edge(adjMatrix, 4, 3, 8);
-    add_edge(adjMatrix, 4, 5, 6);
-    add_edge(adjMatrix, 3, 5, 18); // max flow skal være 24 // source: 0 sink: 5
+    vectorArr graph[VERTICES];
+    for (int i = 0; i < VERTICES; i++) {
+        graph[i].to = vector_create();
+    }
 
-    print_adjMatrix(adjMatrix);
+    //vector_add(&graph[0].to, 2);
+    //printf("Vector Print: %d\n", arr_vec[0].to[0]);
+    
+    //init_graph(adjMatrix);
+    // Eksempler
+
+    add_edge(graph, 0, 1, 16);
+    add_edge(graph, 0, 2, 13);
+    add_edge(graph, 1, 2, 10);
+    add_edge(graph, 2, 1, 6);
+    add_edge(graph, 1, 3, 14);
+    add_edge(graph, 3, 2, 7);
+    add_edge(graph, 2, 4, 13);
+    add_edge(graph, 4, 3, 8);
+    add_edge(graph, 4, 5, 6);
+    add_edge(graph, 3, 5, 18); // max flow skal være 24 // source: 0 sink: 5
+
+    //print_adjMatrix(adjMatrix);
 
     //printf("BFS: %d\n", BFS(adjMatrix, 0, 5));
 
     //adjMatrixOfGraph();
 
-    printf("EDK: %d\n", edmondsKarp(adjMatrix, 0, 5));
-
-    /*
-    Graph* graph = createGraph(4);
-    addEdge(graph, 0, 1, 3);
-    addEdge(graph, 0, 2, 2);
-    addEdge(graph, 0, 3, 1);
-
-    addEdge(graph, 1, 2, 1);
-    addEdge(graph, 2, 4, 1);
-    */
-    /*
-    Graph* graph = createGraph(6);
-    addEdge(graph, 0, 1, 16);
-    addEdge(graph, 0, 2, 13);
-    addEdge(graph, 1, 2, 10);
-    addEdge(graph, 2, 1, 6);
-    addEdge(graph, 1, 3, 14);
-    addEdge(graph, 3, 2, 7);
-    addEdge(graph, 2, 4, 13);
-    addEdge(graph, 4, 3, 8);
-    addEdge(graph, 4, 5, 6);
-    addEdge(graph, 3, 5, 18); // max flow skal være 24 // source: 0 sink: 5
-    */
-    /*
-    Graph* graph = createGraph(6);
-    addEdge(graph, 0, 1, 14);
-    addEdge(graph, 2, 4, 10);
-    addEdge(graph, 6, 7, 9);
-    addEdge(graph, 5, 2, 10);
-    addEdge(graph, 1, 4, 12);
-    addEdge(graph, 2, 0, 15);
-    addEdge(graph, 5, 3, 15); // max flow skal være 12 // source: 0 sink: 4
-    //*/
-    /*
-    Graph* graph = createGraph(6);
-    addEdge(graph, 0, 1, 16);
-    addEdge(graph, 0, 2, 13);
-    addEdge(graph, 1, 2, 10);
-    addEdge(graph, 2, 1, 4);
-    addEdge(graph, 1, 3, 12);
-    addEdge(graph, 2, 4, 14);
-    addEdge(graph, 3, 2, 9);
-    addEdge(graph, 4, 3, 7);
-    addEdge(graph, 3, 5, 20);
-    addEdge(graph, 4, 5, 4); // max flow skal være 23 // source: 0 sink: 5
-    */
-    /*
-    Graph* graph = createGraph(6);
-    addEdge(graph, 0, 1, 11);
-    addEdge(graph, 0, 2, 7);
-    addEdge(graph, 1, 3, 7);
-    addEdge(graph, 2, 4, 5);
-    addEdge(graph, 3, 5, 3);
-    addEdge(graph, 4, 5, 11); // max flow skal være 8 // source: 0 sink: 5
-    */
-    //printGraph(graph);
+    printf("EDK: %d\n", edmondsKarp(graph, 0, 5));
     
     //cleanVisitedArray(graph);
     //printf("BFS: ");
@@ -290,12 +233,20 @@ int edmonds_karp_algo(Graph* graph, int s, int t) {
 }
 */
 
-int BFS(int graph[][VERTICES], int startVertex, int endNode) {
+int BFS(vectorArr *graph, Stack *s, int startVertex, int endNode) {
 
-    memset(parentsList, -1, sizeof(parentsList));
-    memset(currentPathCapacity, 0, sizeof(currentPathCapacity));
+    //memset(parentsList, -1, sizeof(parentsList));
+    //memset(currentPathCapacity, 0, sizeof(currentPathCapacity));
 
-    Stack* s = createStack(VERTICES);
+    for (int i = 0; i < sizeof(parentsList); i++) {
+        parentsList[i] = -1;
+        currentPathCapacity[i] = 0;
+
+        printf("[%d]parentsList: %d\n", i, parentsList[i]);
+        printf("[%d]currentPathCapacity: %d\n", i, currentPathCapacity[i]);
+    }
+
+    //Stack* s = createStack(VERTICES);
     push(s, startVertex);
 
     parentsList[startVertex] = -2;
@@ -308,30 +259,31 @@ int BFS(int graph[][VERTICES], int startVertex, int endNode) {
 
         printf("TEST-1\n");
 
-        int row = sizeof(graph[0]) / sizeof(graph[0][0]);
-        for (int i = 0; i < VERTICES; i++) {
+        printf("vector_size(graph->to[currentVertex]: %ld\n", vector_size(graph[currentVertex].to));
+        for (int i = 0; i < vector_size(graph[currentVertex].to); i++) {
 
             printf("TEST-2\n");
 
-            int to = i;
-            
+            int to = graph[currentVertex].to[i];
+            printf("currentVertex: %d\n", currentVertex);
+            printf("TO-1: %d\n", to);
             printf("parentsList[to]: %d\n", parentsList[to]);
 
             if (parentsList[to] == -1) {
                 
                 printf("TEST-3\n");
 
-                printf("graph[currentVertex][to]: %d\n", graph[currentVertex][to]);
-                if (graph[currentVertex][to] - flowPassed[currentVertex][to] > 0) {               // Skal fixes
+                printf("graph[currentVertex][to]: %d\n", capacities[currentVertex][to]);
+                if (capacities[currentVertex][to] - flowPassed[currentVertex][to] > 0) {              
 
                     printf("TEST-4\n");
 
                     parentsList[to] = currentVertex;
                     printf("TEST 4.5 Pre-Beta\n");
-                    currentPathCapacity[to] = min(currentPathCapacity[currentVertex], graph[currentVertex][to] - flowPassed[currentVertex][to]);
+                    currentPathCapacity[to] = min(currentPathCapacity[currentVertex], capacities[currentVertex][to] - flowPassed[currentVertex][to]);
 
-                    printf("TO: %d\n\n", to);
-                    if (to == 5) {
+                    printf("TO-2: %d\n\n", to);
+                    if (to == endNode) {
 
                         printf("TEST-5\n");
 
@@ -346,12 +298,14 @@ int BFS(int graph[][VERTICES], int startVertex, int endNode) {
 }
 
 
-int edmondsKarp(int graph[][VERTICES], int startVertex, int endNode)
-{
+int edmondsKarp(vectorArr *graph, int startVertex, int endNode) {
+
+    Stack* s = createStack(VERTICES);
+
    int maxFlow = 0;
-   while(1)
-   {
-      int flow = BFS(graph, startVertex, endNode);
+   while(1) { 
+      int flow = BFS(graph, s, startVertex, endNode);
+      printf("FLOW: %d\n", flow);
       if (flow == 0)
       {
          break;
@@ -361,6 +315,7 @@ int edmondsKarp(int graph[][VERTICES], int startVertex, int endNode)
       while(currNode != startVertex)
       {
          int prevNode = parentsList[currNode];
+         printf("prevNode: %d\n", prevNode);
          flowPassed[prevNode][currNode] += flow;
          flowPassed[currNode][prevNode] -= flow;
          currNode = prevNode;
