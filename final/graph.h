@@ -5,6 +5,7 @@ typedef struct node {
     int data;
     int weight;
     struct node* next;
+    struct node* prev;
 } Node;
 
 typedef struct graph {
@@ -18,6 +19,7 @@ Node* createNode(int val, int w) {
     newNode->data = val;
     newNode->weight = w;
     newNode->next = NULL;
+    newNode->prev = NULL;
 
     return newNode;
 }
@@ -39,12 +41,20 @@ void addEdge(Graph* graph, int vertex1, int vertex2, int weight) {
     Node* newNode = createNode(vertex1, weight);
 
     newNode->next = graph->adjList[vertex2];                               /* Laver kant fra vertex1 til vertex2 */
+
     graph->adjList[vertex2] = newNode;
 
+    //graph->adjList[vertex1]->prev = graph->adjList[vertex2];
+
+    
     newNode = createNode(vertex2, weight);
 
-    newNode->next = graph->adjList[vertex1];                               /* Laver kant fra vertex2 til vertex1 */
+    newNode->next = graph->adjList[vertex1];                               //Laver kant fra vertex2 til vertex1 
+    newNode->prev = graph->adjList[vertex2];
     graph->adjList[vertex1] = newNode;
+
+    //graph->adjList[vertex2]->prev = graph->adjList[vertex1];
+    
 }
 
 void printGraph(Graph* graph) {

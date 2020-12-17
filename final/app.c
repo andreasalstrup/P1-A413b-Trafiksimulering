@@ -149,7 +149,7 @@ int BFS(Graph* graph, int startVertex, int endNode) {
                 graph->visited[neighbor] = 1;
                 enqueue(q, neighbor);
             }                    
-            
+            printf("\n - prev %d \n", graph->adjList[currentVertex]->prev->weight);
             if (currentPathCapacity > graph->adjList[currentVertex]->weight ) {
                 if (graph->adjList[currentVertex]->weight > 0) {
                     currentPathCapacity = graph->adjList[currentVertex]->weight;
@@ -159,16 +159,23 @@ int BFS(Graph* graph, int startVertex, int endNode) {
                     
                     printQueue(prev);
                     while (!isEmpty(prev)) {
-                        int currentPrev = dequeue(prev);
-                        printf("\nBefore[%d]\n", graph->adjList[currentPrev]->weight); 
-                        graph->adjList[currentPrev]->weight -= currentPathCapacity;         /* Sætter min kapacitet til knuder i prev kø */
-                        printf("After[%d]\n", graph->adjList[currentPrev]->weight);
+                        
+                        //dequeue(prev);
 
-                        if (graph->adjList[currentPrev]->weight >= 0) {
-                            graph->visited[currentPrev] = 1;
+                        int currentPrev = dequeue(prev);
+                        
+                        printf("\nBefore[%d]\n", graph->adjList[currentPrev]->weight); 
+                        graph->adjList[currentPrev]->weight -= currentPathCapacity;         //Sætter min kapacitet til knuder i prev kø 
+                        printf("After[%d]\n", graph->adjList[currentPrev]->weight);
+                        
+                        //graph->adjList[currentVertex]->prev->weight -=currentPathCapacity;
+                        /*
+                        if(graph->adjList[graph->adjList[currentVertex]->prev->data] != 0){
+                            printf("\nyo2\n");
                         }
+                        */
+                        
                     }
-                    
                     cleanVisitedArray(graph);
                     return currentPathCapacity;
                 }
