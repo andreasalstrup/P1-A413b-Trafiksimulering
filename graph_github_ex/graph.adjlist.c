@@ -1,6 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "queue.h"
+
+void read_graph();
+void init_data_Array();
+void print_graph_data();
+
+typedef struct graphData {
+    int vertex1;
+    int vertex2;
+    int weight;
+} dataArray[100];
 
 /**
  * node: piece of data containing a data field and a pointer to the next node of the list
@@ -278,52 +289,24 @@ int edmonds_karp_algo(Graph* graph, int s, int t) {
 }
 
 int main() {
-    /*
-    Graph* graph = createGraph(4);
-    addEdge(graph, 0, 1, 3);
-    addEdge(graph, 0, 2, 2);
-    addEdge(graph, 0, 3, 1);
+    char data[100];
+    int *vertex1, *vertex2, *weight;
+    Graph* graph;
+    dataArray* dataArray;
 
-    addEdge(graph, 1, 2, 1);
-    addEdge(graph, 2, 4, 1);
-    */
-    /*
-    Graph* graph = createGraph(6);
-    addEdge(graph, 0, 1, 16);
-    addEdge(graph, 0, 2, 13);
-    addEdge(graph, 1, 2, 10);
-    addEdge(graph, 2, 1, 6);
-    addEdge(graph, 1, 3, 14);
-    addEdge(graph, 3, 2, 7);
-    addEdge(graph, 2, 4, 13);
-    addEdge(graph, 4, 3, 8);
-    addEdge(graph, 4, 5, 6);
-    addEdge(graph, 3, 5, 18); // max flow skal være 24 // source: 0 sink: 5
-    */
-    /*
-    Graph* graph = createGraph(6);
-    addEdge(graph, 0, 1, 14);
-    addEdge(graph, 2, 4, 10);
-    addEdge(graph, 6, 7, 9);
-    addEdge(graph, 5, 2, 10);
-    addEdge(graph, 1, 4, 12);
-    addEdge(graph, 2, 0, 15);
-    addEdge(graph, 5, 3, 15); // max flow skal være 12 // source: 0 sink: 4
-    //*/
-    /*
-    Graph* graph = createGraph(6);
-    addEdge(graph, 0, 1, 16);
-    addEdge(graph, 0, 2, 13);
-    addEdge(graph, 1, 2, 10);
-    addEdge(graph, 2, 1, 4);
-    addEdge(graph, 1, 3, 12);
-    addEdge(graph, 2, 4, 14);
-    addEdge(graph, 3, 2, 9);
-    addEdge(graph, 4, 3, 7);
-    addEdge(graph, 3, 5, 20);
-    addEdge(graph, 4, 5, 4); // max flow skal være 23 // source: 0 sink: 5
-    */
+    FILE *fp;
+    printf("T0\n");
 
+    fp = fopen("medPlusbusGraf.txt", "r");
+    while (fp == NULL){
+        printf("Failed to open file\n");
+        return 1;
+    }
+
+    init_data_Array(data, dataArray, 16);
+    printf("T1\n");
+
+    /*
     Graph* graph = createGraph(6);
     addEdge(graph, 0, 1, 11);
     addEdge(graph, 0, 2, 7);
@@ -331,8 +314,13 @@ int main() {
     addEdge(graph, 2, 4, 5);
     addEdge(graph, 3, 5, 3);
     addEdge(graph, 4, 5, 11); // max flow skal være 8 // source: 0 sink: 5
+    */
 
-    printGraph(graph);
+    read_graph(fp, graph, 16);
+    printf("T2\n");
+    print_graph_data(dataArray, 16);
+    printf("T3\n");
+    //printGraph(graph);
     
     //printf("\nDFS: ");
     //DFS(graph, 0);
@@ -341,7 +329,40 @@ int main() {
     //cleanVisitedArray(graph);
     //printf("BFS: ");
     //BFS(graph, 0, 5);
-    printf("Edmonds Karp: %d\n",edmonds_karp_algo(graph, 0, 5));  // Skift efter s og t
+    //printf("Edmonds Karp: %d\n",edmonds_karp_algo(graph, 0, 5));  // Skift efter s og t
 
+    fclose(fp);
     return 0;
+}
+
+void read_graph(FILE* fp, dataArray *data, int totalNumOfEdges) {
+    char buffer[totalNumOfEdges];
+
+    //Graph* graph = createGraph(totalNumOfEdges);
+
+    int i = 0;
+    while (fgets(buffer, totalNumOfEdges, fp) != NULL) {
+        sscanf(buffer, "%d,%d,%d",
+                                    &data[i]->vertex1,
+                                    &data[i]->vertex2,
+                                    &data[i]->weight);
+        i++;
+    }
+}
+
+void init_data_Array(char data[100], dataArray *dataArray, int totalNumOfEdges) {
+    for (int i = 0; i < totalNumOfEdges; i++) {
+        dataArray[i]->vertex1 = 0;
+        dataArray[i]->vertex2 = 0;
+        dataArray[i]->weight = 0;
+    }
+}
+
+void print_graph_data(dataArray *dataArray, int totalNumOfEdges) {
+    for (int i = 0; i < totalNumOfEdges; i++) {
+        printf("[%d]: Vertex1[%d]\tVertex2: %d\tWeight: %d\n\n", i,
+            dataArray[i]->vertex1,
+            dataArray[i]->vertex2,
+            dataArray[i]->weight);
+    }
 }
