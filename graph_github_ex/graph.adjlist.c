@@ -297,7 +297,7 @@ int main() {
     FILE *fp;
     printf("T0\n");
 
-    fp = fopen("medPlusbusGraf.txt", "r");
+    fp = fopen("medPlusbusGraf.CSV", "r");
     while (fp == NULL){
         printf("Failed to open file\n");
         return 1;
@@ -341,6 +341,7 @@ void read_graph(FILE* fp, dataArray *data, int totalNumOfEdges) {
     //Graph* graph = createGraph(totalNumOfEdges);
 
     int i = 0;
+    printf("T1.5\n");
     while (fgets(buffer, totalNumOfEdges, fp) != NULL) {
         sscanf(buffer, "%d,%d,%d",
                                     &data[i]->vertex1,
@@ -350,7 +351,7 @@ void read_graph(FILE* fp, dataArray *data, int totalNumOfEdges) {
     }
 }
 
-void init_data_Array(char data[100], dataArray *dataArray, int totalNumOfEdges) {
+void init_data_Array(char data[], dataArray *dataArray, int totalNumOfEdges) {
     for (int i = 0; i < totalNumOfEdges; i++) {
         dataArray[i]->vertex1 = 0;
         dataArray[i]->vertex2 = 0;
