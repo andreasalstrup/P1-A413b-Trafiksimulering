@@ -329,6 +329,7 @@ void read_graph(FILE* fp, dataArray *data, int totalNumOfEdges) {
     //Graph* graph = createGraph(totalNumOfEdges);
 
     int i = 0;
+    printf("T1.5\n");
     while (fgets(buffer, totalNumOfEdges, fp) != NULL) {
         sscanf(buffer, "%d,%d,%d",
                                     &data[i]->vertex1,
@@ -338,7 +339,11 @@ void read_graph(FILE* fp, dataArray *data, int totalNumOfEdges) {
     }
 }
 
+<<<<<<< HEAD
 void init_data_Array(dataArray *dataArray, int totalNumOfEdges) {
+=======
+void init_data_Array(char data[], dataArray *dataArray, int totalNumOfEdges) {
+>>>>>>> 7fb5426f9a40c17f45fe48438ab8d6bd3a7baac2
     for (int i = 0; i < totalNumOfEdges; i++) {
         dataArray[i]->vertex1 = 0;
         dataArray[i]->vertex2 = 0;
