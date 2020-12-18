@@ -93,7 +93,7 @@ int main(void) {
     printf("%d\n", bfsRes);
     totalFlow += bfsRes;
 
-    printf("Max Flow without Plusbus: %d\n\n", totalFlow);
+    printf("Max Flow without Plusbus: %d\n\n\n", totalFlow);
 
     //S1 route 1
     add_node(Graphx, 0, 1, 480);
@@ -128,19 +128,19 @@ int main(void) {
     totalFlow = 0;
 
     bfsRes = bfs(Graphx, 0, 1);
-    printf("%d\n", bfsRes);
+    printf("%d\n\n", bfsRes);
     totalFlow += bfsRes;
 
     bfsRes = bfs(Graphx1, 0, 0);
-    printf("%d\n", bfsRes);
+    printf("%d\n\n", bfsRes);
     totalFlow += bfsRes;
 
     bfsRes = bfs(Graphx2, 0, 0);
-    printf("%d\n", bfsRes);
+    printf("%d\n\n", bfsRes);
     totalFlow += bfsRes;
 
     bfsRes = bfs(Graphx3, 0, 0);
-    printf("%d\n", bfsRes);
+    printf("%d\n\n", bfsRes);
     totalFlow += bfsRes;
 
     printf("Max Flow with Plusbus: %d\n", totalFlow);
@@ -208,7 +208,7 @@ int bfs(struct graph* Graph, int startVertex, int firstRunToken) {
         }
     }
 
-    printf("BFS Complete\n");
+    printf("BFS Complete\n\n");
 
     for (int i = 0; i < pathCounter; i++) {
         int temp = path[i];

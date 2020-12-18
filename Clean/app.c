@@ -2,19 +2,13 @@
 #include <stdlib.h>
 #include "queue.h"
 
-//DEBUG TOOL: valgrind --tool=memcheck --leak-check=yes -v --leak-check=full --show-reachable=yes ./test
-
-#define MAX_NODE 6
-#define CAPACITY 40
-#define MAX_PATH 20
+#define MAX_NODE 10
 
 /* Holder et hjørne */
 typedef struct node {
-    int vertexNum;                              // Knudepunkt nummer
-    struct node *next;                          // Holder adressen til næste node (vertex)
-    int capacity;                               // Kapaciteten fra knudepunktet
-    int deadNodeToken;
-    int visitedOnce;
+    int vertexNum;                              /* Knudepunkt nummer */
+    struct node *next;                          /* Holder adressen til næste node (vertex) */
+    int capacity;                               /* Kapaciteten fra knudepunktet */
 } node;
 
 /* Graph struct */
@@ -24,6 +18,7 @@ struct graph {
     int* visited;
 };
 
+/* Prototyper */
 struct node* createNode();
 struct graph* createGraph();
 int bfs();
@@ -35,11 +30,6 @@ int main(void) {
     struct graph* Graph = createGraph(MAX_NODE);
     struct graph* Graph1 = createGraph(MAX_NODE);
     struct graph* Graph2 = createGraph(MAX_NODE);
-
-    struct graph* Graphx = createGraph(MAX_NODE);
-    struct graph* Graphx1 = createGraph(MAX_NODE);
-    struct graph* Graphx2 = createGraph(MAX_NODE);
-    struct graph* Graphx3 = createGraph(MAX_NODE);
 
     /*  Uden Plusbus                */
     /*  S1 route 1                  */
@@ -67,19 +57,24 @@ int main(void) {
     printf("BFS begins\n");
     int totalFlow = 0;
 
-    int bfsRes = bfs(Graph, 0, 1);
-    printf("%4d\n", bfsRes);
+    int bfsRes = bfs(Graph, 0);
+    printf("%4d\n\n", bfsRes);
     totalFlow += bfsRes;
 
-    bfsRes = bfs(Graph1, 0, 0);
-    printf("%4d\n", bfsRes);
+    bfsRes = bfs(Graph1, 0);
+    printf("%4d\n\n", bfsRes);
     totalFlow += bfsRes;
 
-    bfsRes = bfs(Graph2, 0, 1);
-    printf("%4d\n", bfsRes);
+    bfsRes = bfs(Graph2, 0);
+    printf("%4d\n\n", bfsRes);
     totalFlow += bfsRes;
 
-    printf("Max Flow without Plusbus: %d\n\n\n", totalFlow);
+    printf("\nMax Flow without Plusbus: %d\n\n\n", totalFlow);
+
+    struct graph* Graphx = createGraph(MAX_NODE);
+    struct graph* Graphx1 = createGraph(MAX_NODE);
+    struct graph* Graphx2 = createGraph(MAX_NODE);
+    struct graph* Graphx3 = createGraph(MAX_NODE);
 
     /*  Med Plusbus                 */
     /*  S1 route 1                  */
@@ -114,35 +109,35 @@ int main(void) {
     printf("BFS begins w/ Plusbus\n");
     totalFlow = 0;
 
-    bfsRes = bfs(Graphx, 0, 1);
-    printf("%d\n", bfsRes);
+    bfsRes = bfs(Graphx, 0);
+    printf("%d\n\n", bfsRes);
     totalFlow += bfsRes;
 
-    bfsRes = bfs(Graphx1, 0, 0);
-    printf("%d\n", bfsRes);
+    bfsRes = bfs(Graphx1, 0);
+    printf("%d\n\n", bfsRes);
     totalFlow += bfsRes;
 
-    bfsRes = bfs(Graphx2, 0, 0);
-    printf("%d\n", bfsRes);
+    bfsRes = bfs(Graphx2, 0);
+    printf("%d\n\n", bfsRes);
     totalFlow += bfsRes;
 
-    bfsRes = bfs(Graphx3, 0, 0);
-    printf("%d\n", bfsRes);
+    bfsRes = bfs(Graphx3, 0);
+    printf("%d\n\n", bfsRes);
     totalFlow += bfsRes;
 
-    printf("Max Flow with Plusbus: %d\n", totalFlow);
+    printf("\nMax Flow with Plusbus: %d\n", totalFlow);
 
     return 0;
 }
 
-int bfs(struct graph* Graph, int startVertex, int firstRunToken) {
+int bfs(struct graph* Graph, int startVertex) {
     struct queue* q = createQueue();
     int bottleneckValue = 0;
 
     Graph->visited[startVertex] = 1;
     enqueue(q, startVertex);
 
-    int BFS_path[MAX_NODE];
+    int BFS_path[MAX_NODE]; /* Bliver aldrig brugt, men giver fejlen "stack smashing detected ***: terminated  Aborted" hvis den bliver fjernet. Grundlag er ukendt. */
 
     int path[] = {}; path[0] = 0;
     int pathCounter = 0;
@@ -172,8 +167,7 @@ int bfs(struct graph* Graph, int startVertex, int firstRunToken) {
         }
     }
 
-    printf("BFS Complete\n\n");
-
+    printf("BFS Complete\n");
     for (int i = 0; i < pathCounter; i++) {
         int temp = path[i];
         if (i == 0) {
@@ -183,20 +177,19 @@ int bfs(struct graph* Graph, int startVertex, int firstRunToken) {
     }
 
     printf("BottleneckValue: ");
-
     return bottleneckValue;
 }
 
 /* Tilføj node til graf, via naboliste */
 void add_node(struct graph* Graph, int src, int dest, int c) {
 
-    //Adds edge from src to dest
-    struct node* newNode = createNode(dest, c); //makes the dest node
+    /* Tilføjer en kant fra knude "src" til knude "dest" */
+    struct node* newNode = createNode(dest, c); /* Laver knuden "dest" */
     newNode->next = Graph->adjlists[src];
     Graph->adjlists[src] = newNode;
 
-    //Adds edge from dest to src
-    newNode = createNode(src, 0); //makes the src node
+    /* Tilføjer en kant fra knude "dest" til knude "src" */
+    newNode = createNode(src, 0); /* Laver knuden "src" */
     newNode->next = Graph->adjlists[dest];
     Graph->adjlists[dest] = newNode;
 }
@@ -216,8 +209,7 @@ struct graph* createGraph(int vertices) {
     graph->adjlists = malloc(vertices * sizeof(struct node*));
     graph->visited = malloc(vertices * sizeof(int));
 
-    int i;
-    for (i = 0; i < vertices; i++) {
+    for (int i = 0; i < vertices; i++) {
         graph->adjlists[i] = NULL;
         graph->visited[i] = 0;
     }
