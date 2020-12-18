@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define CAPACITY 40
-
 struct queue {
-    int nodes[CAPACITY];
+    int nodes[20];
     int front;
     int rear;
 };
@@ -26,7 +24,7 @@ int isEmpty(struct queue* q) {
 }
 
 void enqueue(struct queue* q, int value) {
-    if (q->rear == CAPACITY - 1) {
+    if (q->rear == 20 - 1) {
         printf("\nQueue is full");
     }
     else {
