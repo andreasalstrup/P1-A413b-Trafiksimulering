@@ -11,7 +11,7 @@ typedef struct graphData {
     int vertex1;
     int vertex2;
     int weight;
-} dataArray[100];
+} dataArray[20];
 
 /**
  * node: piece of data containing a data field and a pointer to the next node of the list
@@ -250,13 +250,11 @@ int edmonds_karp_algo(Graph* graph, int s, int t) {
     int i = 0;
 
     int currentNode = t;
-    int prevNode = currentNode - 1;                                 /* prevNode muligvis fejlen */
-    
-    
+    int prevNode = currentNode - 1;
+
     while (1) {
 
         flow = BFS(graph, s, t);
-        printf("\n\nBFS Result: %d\n", flow);
         if (flow == 0) {
             break;
         }
@@ -266,47 +264,34 @@ int edmonds_karp_algo(Graph* graph, int s, int t) {
             enqueue(prev, currentNode);
 
             prevNode = dequeue(prev) - 1;
-
-            //enqueue(prev, currentNode);
-            //int prevNode = dequeue(prev);
-
-
-            //flow += graph->adjList[currentNode]->weight;
             graph->adjList[currentNode]->weight += flow;
-
-            //flow -= graph->adjList[prevNode]->weight;
             graph->adjList[prevNode]->weight -= flow;
-           
-            //currentNode = prevNode--;
-            //currentNode = dequeue(prev) - 1;
-            //break;
+
             currentNode = prevNode;
-        }
-        printf("Outflow: %d\n", flow);
-        
+        }        
     }
     return maxFlow;
 }
 
 int main() {
-    char data[100];
-    int *vertex1, *vertex2, *weight;
-    Graph* graph;
-    dataArray* dataArray;
+    //char data[100];
+    //int *vertex1, *vertex2, *weight;
+    //Graph* graph;
+    /*dataArray* dataArray;
 
-    FILE *fp;
-    printf("T0\n");
+    //FILE *fp;
+    //printf("T0\n");
 
-    fp = fopen("medPlusbusGraf.txt", "r");
+    fp = fopen("medPlusbusGraf.CSV", "r");
     while (fp == NULL){
         printf("Failed to open file\n");
         return 1;
     }
 
-    init_data_Array(data, dataArray, 16);
+    init_data_Array(dataArray, 16);
     printf("T1\n");
+    */
 
-    /*
     Graph* graph = createGraph(6);
     addEdge(graph, 0, 1, 11);
     addEdge(graph, 0, 2, 7);
@@ -314,24 +299,27 @@ int main() {
     addEdge(graph, 2, 4, 5);
     addEdge(graph, 3, 5, 3);
     addEdge(graph, 4, 5, 11); // max flow skal være 8 // source: 0 sink: 5
-    */
 
-    read_graph(fp, graph, 16);
-    printf("T2\n");
-    print_graph_data(dataArray, 16);
-    printf("T3\n");
+
+    //read_graph(fp, dataArray, 16);
+
+    //printf("T2\n");
+
+    //print_graph_data(dataArray, 16);
+
+    //printf("T3\n");
     //printGraph(graph);
     
     //printf("\nDFS: ");
     //DFS(graph, 0);
     //printf("\n");
 
-    //cleanVisitedArray(graph);
+    cleanVisitedArray(graph);
     //printf("BFS: ");
     //BFS(graph, 0, 5);
-    //printf("Edmonds Karp: %d\n",edmonds_karp_algo(graph, 0, 5));  // Skift efter s og t
+    printf("Edmonds Karp: %d\n",edmonds_karp_algo(graph, 0, 5));  // Skift efter s og t
 
-    fclose(fp);
+    //fclose(fp);
     return 0;
 }
 
@@ -350,7 +338,7 @@ void read_graph(FILE* fp, dataArray *data, int totalNumOfEdges) {
     }
 }
 
-void init_data_Array(char data[100], dataArray *dataArray, int totalNumOfEdges) {
+void init_data_Array(dataArray *dataArray, int totalNumOfEdges) {
     for (int i = 0; i < totalNumOfEdges; i++) {
         dataArray[i]->vertex1 = 0;
         dataArray[i]->vertex2 = 0;
