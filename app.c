@@ -137,9 +137,9 @@ int bfs(struct graph* Graph, int startVertex) {
     Graph->visited[startVertex] = 1;
     enqueue(q, startVertex);
 
-    int BFS_path[MAX_NODE]; /* Bliver aldrig brugt, men giver fejlen "stack smashing detected ***: terminated  Aborted" hvis den bliver fjernet. Grundlag er ukendt. */
+    //int BFS_path[MAX_NODE]; /* Bliver aldrig brugt, men giver fejlen "stack smashing detected ***: terminated  Aborted" hvis den bliver fjernet. Grundlag er ukendt. */
 
-    int path[] = {}; path[0] = 0;
+    int path[MAX_NODE] = {}; path[0] = 0;
     int pathCounter = 0;
     int lastVertex = 0;
 
