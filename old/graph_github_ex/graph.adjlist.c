@@ -1,6 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "queue.h"
+
+void read_graph();
+void init_data_Array();
+void print_graph_data();
+
+typedef struct graphData {
+    int vertex1;
+    int vertex2;
+    int weight;
+} dataArray[20];
 
 /**
  * node: piece of data containing a data field and a pointer to the next node of the list
@@ -123,6 +134,17 @@ void DFS(Graph* graph, int startVertex) {
 
 }
 
+/**
+ * cleanVisitedArray: re-set the values back to 0 so we can DFS again
+ * @param graph a graph structure
+ * @return void
+*/
+void cleanVisitedArray(Graph* graph) {
+    for (int i = 0; i < graph->numVertices + 1; i++) {
+        graph->visited[i] = 0; 
+    }
+}
+
 int min(int num1, int num2) {
    return (num1 < num2) ? num1 : num2;
 }
@@ -135,28 +157,60 @@ int min(int num1, int num2) {
 */
 int BFS(Graph* graph, int startVertex, int endNode) {
     Queue* q = createQueue();
-    //int currentPathCapacity = 999;
-    int currentPathCapacity;
+    Queue* prev = createQueue();                                                            /* Laver prev kø */
 
-    graph->visited[startVertex] = 1;
+    int currentPathCapacity;
+    if (graph->visited[startVertex] == 0 /*&& (graph->adjList[startVertex]->weight >= 0)*/) {
+        graph->visited[startVertex] = 1;
+        currentPathCapacity = graph->adjList[startVertex]->weight;
+        //enqueue(prev, startVertex);
+    } 
     enqueue(q, startVertex);
 
     while (!isEmpty(q)) {
         //printQueue(q);
         int currentVertex = dequeue(q);
-        printf("%d w:%d ", currentVertex, graph->adjList[currentVertex]->weight);
-
+        printf("%d[%d] ", currentVertex, graph->adjList[currentVertex]->weight);
+        
+        enqueue(prev, currentVertex);                                                       /* Tilføjes til prev kø */
 
         Node* temp = graph->adjList[currentVertex];
         while (temp) {
             int neighbor = temp->data;
 
-            if (graph->visited[neighbor] == 0) {
+            //printf("\nBEFORE VISITED: %d Vertex[%d]\n", graph->visited[neighbor], graph->adjList[currentVertex]->data);
+
+            if (graph->visited[neighbor] == 0 && (graph->adjList[neighbor]->weight >= 0)) {
                 graph->visited[neighbor] = 1;
                 enqueue(q, neighbor);
-            }            
-            temp = temp->next;
+            }                    
             
+            if (currentPathCapacity > graph->adjList[currentVertex]->weight ) {
+                if (graph->adjList[currentVertex]->weight > 0) {
+                    currentPathCapacity = graph->adjList[currentVertex]->weight;
+                }
+                
+                if (graph->adjList[currentVertex]->data == endNode) {   
+                    
+                    printQueue(prev);
+                    while (!isEmpty(prev)) {
+                        int currentPrev = dequeue(prev);
+                        printf("\nBefore[%d]\n", graph->adjList[currentPrev]->weight); 
+                        graph->adjList[currentPrev]->weight -= currentPathCapacity;         /* Sætter min kapacitet til knuder i prev kø */
+                        printf("After[%d]\n", graph->adjList[currentPrev]->weight);
+
+                        if (graph->adjList[currentPrev]->weight >= 0) {
+                            graph->visited[currentPrev] = 1;
+                        }
+                    }
+                    
+                    cleanVisitedArray(graph);
+                    return currentPathCapacity;
+                }
+            }
+            temp = temp->next;
+
+
             //const int flowPassed = graph->adjList[startVertex]->weight;
             //currentPathCapacity = graph->adjList[currentVertex]->weight;
             //printf("flowPassed: %d\n", flowPassed);
@@ -171,35 +225,21 @@ int BFS(Graph* graph, int startVertex, int endNode) {
                 //return currentPathCapacity;
             //}
 
-            if (graph->visited[currentVertex] > 0) {
-                graph->visited[currentVertex] = 1;
-                currentPathCapacity = graph->adjList[currentVertex]->weight;
-            }
+
+            //if (graph->visited[currentVertex] == 0) {
+            //    graph->visited[currentVertex] = 1;
+            //    currentPathCapacity = graph->adjList[currentVertex]->weight;
+            //}
 
             //currentPathCapacity = min(currentPathCapacity, graph->adjList[currentVertex]->weight);
             //printf("\ncurrentPathCapacity: %d\n", currentPathCapacity);
             //printf("weight: %d\n\n", graph->adjList[currentVertex]->weight);
 
-            if (graph->adjList[currentVertex]->data == endNode) {
-                return currentPathCapacity;
-            }
 
             //enqueue(q, graph->adjList[currentVertex]->data);
         }
     }
     return 0;
-}
-
-
-/**
- * cleanVisitedArray: re-set the values back to 0 so we can DFS again
- * @param graph a graph structure
- * @return void
-*/
-void cleanVisitedArray(Graph* graph) {
-    for (int i = 0; i < graph->numVertices + 1; i++) {
-        graph->visited[i] = 0; 
-    }
 }
 
 int edmonds_karp_algo(Graph* graph, int s, int t) {
@@ -210,94 +250,108 @@ int edmonds_karp_algo(Graph* graph, int s, int t) {
     int i = 0;
 
     int currentNode = t;
-    int prevNode = currentNode - 1;                                 /* prevNode muligvis fejlen */
-    
+    int prevNode = currentNode - 1;
+
     while (1) {
+
         flow = BFS(graph, s, t);
-        printf("\n\nBFS Result: %d\n", flow);
         if (flow == 0) {
             break;
         }
 
         maxFlow += flow;
         while (currentNode != s) {
+            enqueue(prev, currentNode);
 
-            //enqueue(prev, currentNode);
-            //int prevNode = dequeue(prev);
+            prevNode = dequeue(prev) - 1;
+            graph->adjList[currentNode]->weight += flow;
+            graph->adjList[prevNode]->weight -= flow;
 
-            printf("[%d]currNode: %d\n", i, currentNode);
-            printf("[%d]prevNode: %d\n", i, prevNode);
-
-            printf("[%d]Flow:     %d\n", i, flow);
-            flow += graph->adjList[currentNode]->weight;
-            printf("[%d]+Flow:     %d\n", i, graph->adjList[currentNode]->weight);
-            flow -= graph->adjList[prevNode]->weight;
-            printf("[%d]-Flow:     %d\n\n", i++, graph->adjList[prevNode]->weight);
-            
-            currentNode = prevNode--;
-        }
-        printf("Outflow: %d\n", flow);
-        
+            currentNode = prevNode;
+        }        
     }
     return maxFlow;
 }
 
 int main() {
-    /*
-    Graph* graph = createGraph(4);
-    addEdge(graph, 0, 1, 3);
-    addEdge(graph, 0, 2, 2);
-    addEdge(graph, 0, 3, 1);
+    //char data[100];
+    //int *vertex1, *vertex2, *weight;
+    //Graph* graph;
+    /*dataArray* dataArray;
 
-    addEdge(graph, 1, 2, 1);
-    addEdge(graph, 2, 4, 1);
+    //FILE *fp;
+    //printf("T0\n");
+
+    fp = fopen("medPlusbusGraf.CSV", "r");
+    while (fp == NULL){
+        printf("Failed to open file\n");
+        return 1;
+    }
+
+    init_data_Array(dataArray, 16);
+    printf("T1\n");
     */
-    /*
+
     Graph* graph = createGraph(6);
-    addEdge(graph, 0, 1, 16);
-    addEdge(graph, 0, 2, 13);
-    addEdge(graph, 1, 2, 10);
-    addEdge(graph, 2, 1, 6);
-    addEdge(graph, 1, 3, 14);
-    addEdge(graph, 3, 2, 7);
-    addEdge(graph, 2, 4, 13);
-    addEdge(graph, 4, 3, 8);
-    addEdge(graph, 4, 5, 6);
-    addEdge(graph, 3, 5, 18); // max flow skal være 24 // source: 0 sink: 5
-    */
-    /*
-    Graph* graph = createGraph(6);
-    addEdge(graph, 0, 1, 14);
-    addEdge(graph, 2, 4, 10);
-    addEdge(graph, 6, 7, 9);
-    addEdge(graph, 5, 2, 10);
-    addEdge(graph, 1, 4, 12);
-    addEdge(graph, 2, 0, 15);
-    addEdge(graph, 5, 3, 15); // max flow skal være 12 // source: 0 sink: 4
-    */
-    ///*
-    Graph* graph = createGraph(6);
-    addEdge(graph, 0, 1, 16);
-    addEdge(graph, 0, 2, 13);
-    addEdge(graph, 1, 2, 10);
-    addEdge(graph, 2, 1, 4);
-    addEdge(graph, 1, 3, 12);
-    addEdge(graph, 2, 4, 14);
-    addEdge(graph, 3, 2, 9);
-    addEdge(graph, 4, 3, 7);
-    addEdge(graph, 3, 5, 20);
-    addEdge(graph, 4, 5, 4); // max flow skal være 23 // source: 0 sink: 5
-    //*/
-    printGraph(graph);
+    addEdge(graph, 0, 1, 11);
+    addEdge(graph, 0, 2, 7);
+    addEdge(graph, 1, 3, 7);
+    addEdge(graph, 2, 4, 5);
+    addEdge(graph, 3, 5, 3);
+    addEdge(graph, 4, 5, 11); // max flow skal være 8 // source: 0 sink: 5
+
+
+    //read_graph(fp, dataArray, 16);
+
+    //printf("T2\n");
+
+    //print_graph_data(dataArray, 16);
+
+    //printf("T3\n");
+    //printGraph(graph);
     
     //printf("\nDFS: ");
     //DFS(graph, 0);
     //printf("\n");
 
     cleanVisitedArray(graph);
-    printf("BFS: ");
+    //printf("BFS: ");
     //BFS(graph, 0, 5);
     printf("Edmonds Karp: %d\n",edmonds_karp_algo(graph, 0, 5));  // Skift efter s og t
 
+    //fclose(fp);
     return 0;
+}
+
+void read_graph(FILE* fp, dataArray *data, int totalNumOfEdges) {
+    char buffer[totalNumOfEdges];
+
+    //Graph* graph = createGraph(totalNumOfEdges);
+
+    int i = 0;
+    printf("T1.5\n");
+    while (fgets(buffer, totalNumOfEdges, fp) != NULL) {
+        sscanf(buffer, "%d,%d,%d",
+                                    &data[i]->vertex1,
+                                    &data[i]->vertex2,
+                                    &data[i]->weight);
+        i++;
+    }
+}
+
+void init_data_Array(dataArray *dataArray, int totalNumOfEdges) {
+    for (int i = 0; i < totalNumOfEdges; i++) {
+        dataArray[i]->vertex1 = 0;
+        dataArray[i]->vertex2 = 0;
+        dataArray[i]->weight = 0;
+    }
+}
+
+void print_graph_data(dataArray *dataArray, int totalNumOfEdges) {
+    for (int i = 0; i < totalNumOfEdges; i++) {
+        printf("[%d]: Vertex1[%d]\tVertex2: %d\tWeight: %d\n\n", i,
+            dataArray[i]->vertex1,
+            dataArray[i]->vertex2,
+            dataArray[i]->weight);
+    }
 }

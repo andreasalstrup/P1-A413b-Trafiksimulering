@@ -173,6 +173,20 @@ int main() {
     addEdge(graph, 1, 2);
     addEdge(graph, 2, 4);
     */
+    /*
+    Graph* graph = createGraph(6);
+    addEdge(graph, 0, 1);
+    addEdge(graph, 0, 2);
+    addEdge(graph, 1, 2);
+    addEdge(graph, 2, 1);
+    addEdge(graph, 1, 3);
+    addEdge(graph, 2, 4);
+    addEdge(graph, 3, 2);
+    addEdge(graph, 4, 3);
+    addEdge(graph, 3, 5);
+    addEdge(graph, 4, 5); // max flow skal være 23 // source: 0 sink: 5
+    */
+    /*
     Graph* graph = createGraph(6);
     addEdge(graph, 0, 1);
     addEdge(graph, 0, 2);
@@ -184,6 +198,15 @@ int main() {
     addEdge(graph, 4, 3);
     addEdge(graph, 4, 5);
     addEdge(graph, 3, 5); // max flow skal være 24
+    */
+
+    Graph* graph = createGraph(6);
+    addEdge(graph, 0, 1);
+    addEdge(graph, 0, 2);
+    addEdge(graph, 1, 3);
+    addEdge(graph, 2, 4);
+    addEdge(graph, 3, 5);
+    addEdge(graph, 4, 5); // max flow skal være 8 // source: 0 sink: 5
 
     printGraph(graph);
     
